@@ -48,6 +48,7 @@ export default function HeroBanner() {
                         className="w-full h-full object-cover rounded-[40px] shadow-xl relative z-10"
                         width={800}
                         height={800}
+                        priority
                     />
                 </motion.div>
             </div>

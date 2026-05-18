@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaPaw } from "react-icons/fa";
@@ -13,25 +13,31 @@ import Image from "next/image";
 export default function Navbar() {
     const pathname = usePathname();
     const [isLoggedIn, setIsLoggedIn] = useState(true);
+    const [mounted, setMounted] = useState(false);
     const userRole = "owner"; 
+
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleLogout = () => {
         setIsLoggedIn(false);
         toast.success("Successfully logged out!");
     };
 
-
     const isActive = (path) =>
         pathname === path
-            ? "text-pink-900 dark:text-pink-300 font-bold border-b-2 border-pink-700 dark:border-pink-400 bg-transparent"
-            : "text-base-content/80 hover:text-pink-600 bg-transparent";
+            ? "text-pink-700 dark:text-pink-300 font-bold border-b-2 border-pink-600 dark:border-pink-400 bg-transparent"
+            : "text-slate-700 dark:text-slate-200 hover:text-pink-600 dark:hover:text-pink-400 bg-transparent";
 
     return (
         <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="navbar border-b border-pink-200/40 sticky top-0 z-50 backdrop-blur-md bg-pink-gradient bg-opacity-90 shadow-sm px-4 sm:px-6 lg:px-8"
+         
+            className="navbar border-b border-pink-200/30 sticky top-0 z-50 backdrop-blur-md bg-gradient-to-r from-pink-50 via-white to-pink-50 dark:from-[#2A0813] dark:via-[#1A040B] dark:to-[#2A0813] bg-opacity-95 shadow-sm px-4 sm:px-6 lg:px-8"
         >
      
             <div className="navbar-start">
@@ -53,31 +59,29 @@ export default function Navbar() {
                     </ul>
                 </div>
 
-    
                 <Link href="/" className="btn btn-ghost p-0 hover:bg-transparent flex items-center gap-2.5 normal-case group transition-all duration-300 transform active:scale-95">
-                    <div className="bg-white/80 p-2 rounded-xl shadow-sm border border-pink-200/50 flex items-center justify-center group-hover:bg-white transition-colors duration-300">
-                        <FaPaw className="text-pink-700 dark:text-pink-400 text-2xl drop-shadow-[0_2px_4px_rgba(219,39,119,0.2)]" />
+                    <div className="bg-white/90 p-2 rounded-xl shadow-sm border border-pink-200/50 flex items-center justify-center group-hover:bg-white transition-colors duration-300">
+                        <FaPaw className="text-pink-600 dark:text-pink-400 text-2xl drop-shadow-[0_2px_4px_rgba(219,39,119,0.2)]" />
                     </div>
                     <div className="flex flex-col items-start leading-none">
-                        <span className="text-gradient-pink font-extrabold text-2xl tracking-tight filter drop-shadow-[0_1px_2px_rgba(255,255,255,0.6)]">
+                        <span className="bg-gradient-to-r from-pink-600 to-rose-500 bg-clip-text text-transparent font-extrabold text-2xl tracking-tight">
                             PetAdopt
                         </span>
-                  
-                        <span className="text-[10px] text-pink-900/60 font-semibold uppercase tracking-widest pl-0.5 mt-0.5">
+                        <span className="text-[10px] text-pink-800/70 dark:text-pink-300/60 font-semibold uppercase tracking-widest pl-0.5 mt-0.5">
                             Find Your Friend
                         </span>
                     </div>
                 </Link>
             </div>
 
-         
+       
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1 gap-2 font-semibold">
                     <li>
                         <Link href="/" className={`px-4 py-2 rounded-none ${isActive("/")}`}>
                             Home
                         </Link>
-                    </li>
+                    </li >
                     <li>
                         <Link href="/pets" className={`px-4 py-2 rounded-none ${isActive("/pets")}`}>
                             All Pets
@@ -102,11 +106,12 @@ export default function Navbar() {
                 </ul>
             </div>
 
-        
+          
             <div className="navbar-end gap-3">
-                <ThemeToggle />
+            
+                {mounted && <ThemeToggle />}
 
-                {isLoggedIn ? (
+                {mounted && isLoggedIn ? (
                     <div className="dropdown dropdown-end">
                         <label tabIndex={0} className="btn btn-ghost btn-circle avatar online ring-2 ring-pink-400/50 dark:ring-pink-500/50 ring-offset-2 ring-offset-base-100">
                             <div className="w-10 rounded-full">
@@ -115,8 +120,7 @@ export default function Navbar() {
                         </label>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-3 shadow bg-base-100 rounded-box w-56 border border-pink-100 dark:border-pink-900/30">
                             <li className="px-2 py-1 font-semibold text-xs text-base-content/50">Signed in as</li>
-                       
-                            <li className="px-2 pb-2 pt-0 font-bold text-sm text-pink-900 dark:text-pink-400 break-all border-b border-pink-100 dark:border-pink-900/20">
+                            <li className="px-2 pb-2 pt-0 font-bold text-sm text-pink-700 dark:text-pink-400 break-all border-b border-pink-100 dark:border-pink-900/20">
                                 owner@example.com
                             </li>
                             <li className="mt-2">
@@ -132,9 +136,11 @@ export default function Navbar() {
                         </ul>
                     </div>
                 ) : (
-                    <Link href="/login" className="btn btn-primary text-white font-bold normal-case px-6 rounded-full shadow-md shadow-pink-300/30 transition-transform active:scale-95">
-                        Login
-                    </Link>
+                    mounted && (
+                        <Link href="/login" className="btn !bg-gradient-to-r !from-pink-500 !to-rose-500 !text-white font-bold normal-case px-6 rounded-full shadow-md shadow-pink-300/30 transition-transform active:scale-95 border-none">
+                            Login
+                        </Link>
+                    )
                 )}
             </div>
         </motion.div>
