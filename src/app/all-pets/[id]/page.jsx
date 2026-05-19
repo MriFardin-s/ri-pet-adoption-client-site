@@ -4,7 +4,7 @@ import { FaPaw, FaUser, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import AdoptForm from "./AdoptForm";
 
 export default async function PetDetailsPage({ params }) {
- হবে
+
   const resolvedParams = await params;
   const { id } = resolvedParams;
 
@@ -40,6 +40,8 @@ export default async function PetDetailsPage({ params }) {
             <div className="relative h-[400px] w-full bg-slate-200 dark:bg-zinc-800">
               
               <Image
+              width={400}
+              height={400}
                 src={pet.imageUrl || pet.image || "https://placehold.co/600x400?text=Pet+Image"}
                 alt={pet.petName || pet.name || "Pet"}
                 className="w-full h-full object-cover"

@@ -12,7 +12,8 @@ import Image from "next/image";
 
 export default function Navbar() {
     const pathname = usePathname();
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false); 
     const [mounted, setMounted] = useState(false);
     const userRole = "owner"; 
 
@@ -25,10 +26,23 @@ export default function Navbar() {
         toast.success("Successfully logged out!");
     };
 
+  
     const isActive = (path) =>
         pathname === path
             ? "text-pink-700 dark:text-pink-300 font-bold border-b-2 border-pink-600 dark:border-pink-400"
             : "text-slate-700 dark:text-slate-200 hover:text-pink-600 dark:hover:text-pink-400";
+
+ 
+    const getAuthButtonStyle = (path) => {
+        const isCurrent = pathname === path;
+
+        if (isCurrent) {
+           
+            return "bg-pink-600 text-white font-bold border border-pink-600 px-5 h-10 rounded-full shadow-md shadow-pink-500/20 transition duration-200 flex items-center justify-center text-sm";
+        }
+   
+        return "bg-transparent text-slate-700 dark:text-slate-200 font-semibold border border-gray-300 dark:border-zinc-700 hover:border-pink-500 dark:hover:border-pink-500 px-5 h-10 rounded-full transition duration-200 flex items-center justify-center text-sm";
+    };
 
     return (
         <motion.div
@@ -37,12 +51,11 @@ export default function Navbar() {
             transition={{ duration: 0.4 }}
             className="w-full border-b border-pink-200/30 sticky top-0 z-50 backdrop-blur-md bg-gradient-to-r from-pink-50 via-white to-pink-50 dark:from-[#2A0813] dark:via-[#1A040B] dark:to-[#2A0813] bg-opacity-95 shadow-sm px-4 sm:px-6 lg:px-8"
         >
-            {/* Main Container forcing strict flex separation */}
             <div className="max-w-7xl mx-auto flex items-center justify-between h-16 w-full">
                 
-                {/* 1. START SECTION: Mobile Menu + Logo */}
+               
                 <div className="flex items-center gap-2">
-                    {/* Mobile Hamburger Dropdown */}
+                   
                     <div className="dropdown lg:hidden block">
                         <label tabIndex={0} className="btn btn-ghost p-1 mr-1 flex items-center justify-center" aria-label="Open Menu">
                             <HiMenu className="text-2xl text-pink-700 dark:text-pink-300" />
@@ -61,7 +74,7 @@ export default function Navbar() {
                         </ul>
                     </div>
 
-                    {/* Branding Logo */}
+                  
                     <Link href="/" className="flex items-center gap-2.5 normal-case group transition-all duration-300 transform active:scale-95">
                         <div className="bg-white/90 p-2 rounded-xl shadow-sm border border-pink-200/50 flex items-center justify-center group-hover:bg-white transition-colors duration-300">
                             <FaPaw className="text-pink-600 dark:text-pink-400 text-xl sm:text-2xl drop-shadow-[0_2px_4px_rgba(219,39,119,0.2)]" />
@@ -77,7 +90,7 @@ export default function Navbar() {
                     </Link>
                 </div>
 
-                {/* 2. CENTER SECTION:  */}
+              
                 <div className="hidden lg:flex items-center">
                     <ul className="flex items-center gap-6 font-semibold text-sm">
                         <li>
@@ -109,7 +122,7 @@ export default function Navbar() {
                     </ul>
                 </div>
 
-                {/* 3. END SECTION */}
+               
                 <div className="flex items-center gap-3">
                     {mounted && <ThemeToggle />}
 
@@ -139,9 +152,14 @@ export default function Navbar() {
                         </div>
                     ) : (
                         mounted && (
-                            <Link href="/login" className="btn bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold normal-case px-5 sm:px-6 h-10 min-h-0 rounded-full shadow-md shadow-pink-300/30 transition-transform active:scale-95 border-none flex items-center justify-center">
-                                Login
-                            </Link>
+                            <div className="flex items-center gap-3">
+                                <Link href="/login" className={getAuthButtonStyle("/login")}>
+                                    Login
+                                </Link>
+                                <Link href="/signup" className={getAuthButtonStyle("/signup")}>
+                                    Sign Up
+                                </Link>
+                            </div>
                         )
                     )}
                 </div>
