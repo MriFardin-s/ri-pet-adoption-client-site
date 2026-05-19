@@ -9,7 +9,7 @@ import Image from "next/image";
 
 export default function PetCard({ pet }) {
   const router = useRouter();
-  const user = null; 
+  const user = null;
 
   const handleAdoptNow = () => {
     if (!user) {
@@ -28,7 +28,7 @@ export default function PetCard({ pet }) {
     >
       <div className="relative h-56 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
         <Image
-          src={pet.imageUrl } 
+          src={pet.imageUrl}
           alt={pet.petName}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           width={400}
@@ -59,13 +59,13 @@ export default function PetCard({ pet }) {
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-auto">
-          <Link 
+          <Link
             href={`/all-pets/${pet._id}`}
-            className="w-full py-3 text-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-950 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-bold text-sm transition-colors active:scale-[0.98]"
+            className="w-full py-3 block text-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-950 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-bold text-sm transition-colors active:scale-[0.98]"
           >
             View Details
           </Link>
-          
+
           <button
             onClick={handleAdoptNow}
             className="w-full py-3 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-sm shadow-sm transition-all hover:opacity-95 active:scale-[0.98] flex items-center justify-center gap-1.5"
