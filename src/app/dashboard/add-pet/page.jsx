@@ -11,7 +11,8 @@ export default function AddPet() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget; 
+    const formData = new FormData(form);
     const petData = Object.fromEntries(formData.entries());
     console.log("Submitting pet data:", petData);
 
@@ -25,8 +26,8 @@ export default function AddPet() {
       });
 
       if (res.ok) {
-        toast.success(" Pet Added Successfully!");
-        e.target.reset();
+        toast.success("Pet Added Successfully!");
+        form.reset(); 
       } else {
         toast.error("Failed to add pet.");
       }
@@ -80,12 +81,12 @@ export default function AddPet() {
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl focus:border-pink-500 focus:outline-none bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 shadow-sm transition-all cursor-pointer"
               defaultValue=""
             >
-              <option value="" disabled className="text-slate-400">Select species</option>
-              <option value="Dog">Dog</option>
-              <option value="Cat">Cat</option>
-              <option value="Bird">Bird</option>
-              <option value="Rabbit">Rabbit</option>
-              <option value="Other">Other</option>
+              <option value="" disabled className="text-slate-400 dark:bg-zinc-800">Select species</option>
+              <option value="Dog" className="dark:bg-zinc-800">Dog</option>
+              <option value="Cat" className="dark:bg-zinc-800">Cat</option>
+              <option value="Bird" className="dark:bg-zinc-800">Bird</option>
+              <option value="Rabbit" className="dark:bg-zinc-800">Rabbit</option>
+              <option value="Other" className="dark:bg-zinc-800">Other</option>
             </select>
           </div>
 
@@ -128,9 +129,9 @@ export default function AddPet() {
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl focus:border-pink-500 focus:outline-none bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 shadow-sm transition-all cursor-pointer"
               defaultValue=""
             >
-              <option value="" disabled className="text-slate-400">Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
+              <option value="" disabled className="text-slate-400 dark:bg-zinc-800">Select gender</option>
+              <option value="Male" className="dark:bg-zinc-800">Male</option>
+              <option value="Female" className="dark:bg-zinc-800">Female</option>
             </select>
           </div>
 
@@ -145,10 +146,10 @@ export default function AddPet() {
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl focus:border-pink-500 focus:outline-none bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 shadow-sm transition-all cursor-pointer"
               defaultValue=""
             >
-              <option value="" disabled className="text-slate-400">Select health status</option>
-              <option value="Healthy">Healthy</option>
-              <option value="Under Treatment">Under Treatment</option>
-              <option value="Special Needs">Special Needs</option>
+              <option value="" disabled className="text-slate-400 dark:bg-zinc-800">Select health status</option>
+              <option value="Healthy" className="dark:bg-zinc-800">Healthy</option>
+              <option value="Under Treatment" className="dark:bg-zinc-800">Under Treatment</option>
+              <option value="Special Needs" className="dark:bg-zinc-800">Special Needs</option>
             </select>
           </div>
 
@@ -163,10 +164,10 @@ export default function AddPet() {
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl focus:border-pink-500 focus:outline-none bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 shadow-sm transition-all cursor-pointer"
               defaultValue=""
             >
-              <option value="" disabled className="text-slate-400">Select vaccination status</option>
-              <option value="Fully Vaccinated">Fully Vaccinated</option>
-              <option value="Partially Vaccinated">Partially Vaccinated</option>
-              <option value="Not Vaccinated">Not Vaccinated</option>
+              <option value="" disabled className="text-slate-400 dark:bg-zinc-800">Select vaccination status</option>
+              <option value="Fully Vaccinated" className="dark:bg-zinc-800">Fully Vaccinated</option>
+              <option value="Partially Vaccinated" className="dark:bg-zinc-800">Partially Vaccinated</option>
+              <option value="Not Vaccinated" className="dark:bg-zinc-800">Not Vaccinated</option>
             </select>
           </div>
 
@@ -244,7 +245,7 @@ export default function AddPet() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold tracking-wide shadow-lg py-4 transition-all hover:opacity-90 active:scale-[0.99] flex items-center justify-center gap-2 disabled:bg-zinc-300"
+          className="w-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold tracking-wide shadow-lg py-4 transition-all hover:opacity-90 active:scale-[0.99] flex items-center justify-center gap-2 disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center gap-2">
