@@ -1,23 +1,57 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FaGoogle, FaEnvelope, FaLock, FaPaw } from "react-icons/fa";
+import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
-    const handleLogin = (e) => {
-        e.preventDefault();
+    const router = useRouter();
+    const { data: session, isPending } = authClient.useSession();
 
+    
+    useEffect(() => {
+        if (!isPending && session?.user) {
+            
+        }
+    }, [session, isPending, router]);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const user = Object.fromEntries(formData.entries());
+        
+        const { data, error } = await authClient.signIn.email({
+            email: user.email,
+            password: user.password,
+        });
+
+        if (data) {
+            toast.success("Login successful! Redirecting...");
+            router.push("/"); 
+            router.refresh(); 
+        }
+        if (error) {
+            toast.error(`Login failed: ${error.message}`);
+        }
     };
 
-    const handleGoogleLogin = () => {
-
+    const handleGoogleLogin = async () => {
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/", 
+            });
+        } catch (err) {
+            toast.error("Google login failed");
+        }
     };
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-colors duration-300">
             <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-pink-100 dark:border-pink-950/20">
-
 
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-pink-100 dark:bg-pink-950/50 text-pink-500 mb-3">
@@ -35,7 +69,8 @@ export default function LoginPage() {
                         <div className="relative">
                             <input
                                 type="email"
-                                placeholder="fardin@example.com"
+                                name="email"
+                                placeholder="abc@example.com"
                                 required
                                 className="w-full bg-transparent dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-medium pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all placeholder:text-slate-400/60"
                             />
@@ -47,12 +82,12 @@ export default function LoginPage() {
                     <div>
                         <div className="flex justify-between items-center pb-1.5">
                             <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Password</label>
-
                         </div>
                         <div className="relative">
                             <input
                                 type="password"
-                                placeholder="••••••••"
+                                name="password"
+                                placeholder="Enter your password"
                                 required
                                 className="w-full bg-transparent dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-medium pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all placeholder:text-slate-400/60"
                             />
@@ -65,7 +100,7 @@ export default function LoginPage() {
                         type="submit"
                         className="w-full mt-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3.5 rounded-xl border-none shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                     >
-                        Sign In
+                        Log In
                     </button>
                 </form>
 
