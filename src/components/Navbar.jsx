@@ -17,12 +17,12 @@ export default function Navbar() {
     const [mounted, setMounted] = useState(false);
 
     const { data: session, isPending } = authClient.useSession();
-    
-   
+
+
     const isLoggedIn = session && session.user ? true : false;
 
     const userEmail = session?.user?.email || "";
-    const userRole = "owner"; 
+    const userRole = session?.user?.role || "user";
 
     useEffect(() => {
         setMounted(true);
@@ -45,20 +45,20 @@ export default function Navbar() {
             ? "text-pink-700 dark:text-pink-300 font-bold border-b-2 border-pink-600 dark:border-pink-400"
             : "text-slate-700 dark:text-slate-200 hover:text-pink-600 dark:hover:text-pink-400";
 
-  
+
     const getAuthButtonStyle = (path) => {
         const isCurrent = pathname === path;
-        
-    
+
+
         if (isCurrent) {
             return "bg-gradient-to-r from-pink-600 to-rose-500 text-white font-bold px-5 h-10 rounded-xl shadow-md shadow-pink-500/20 transition-all duration-200 flex items-center justify-center text-sm active:scale-[0.98]";
         }
-        
-       
+
+
         return "bg-transparent text-pink-600 dark:text-pink-400 font-bold border-2 border-pink-500/80 dark:border-pink-500/50 hover:bg-pink-50 dark:hover:bg-pink-950/20 px-5 h-10 rounded-xl transition-all duration-200 flex items-center justify-center text-sm active:scale-[0.98]";
     };
 
-    console.log("Navbar Auth State:", { mounted, isPending, isLoggedIn, session });
+
 
     return (
         <motion.div
@@ -78,7 +78,7 @@ export default function Navbar() {
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[50] p-2 shadow bg-base-100 rounded-box w-52 border border-pink-100 dark:border-pink-900/30">
                             <li><Link href="/" className={`py-2 ${isActive("/")}`}>Home</Link></li>
                             <li><Link href="/all-pets" className={`py-2 ${isActive("/all-pets")}`}>All Pets</Link></li>
-                            
+
                             {/* Mobile Views */}
                             {mounted && !isPending && (
                                 isLoggedIn ? (
@@ -154,15 +154,21 @@ export default function Navbar() {
                         isLoggedIn ? (
                             <div className="dropdown dropdown-end">
                                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar online ring-2 ring-pink-400/50 dark:ring-pink-500/50 ring-offset-2 ring-offset-base-100 cursor-pointer">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden relative">
-                                        <Image
-                                            src={session?.user?.image && session.user.image.trim() !== "" ? session.user.image : "https://api.dicebear.com/7.x/initials/svg?seed=User"}
-                                            referrerPolicy="no-referrer"
-                                            alt="User Avatar"
-                                            width={40}
-                                            height={40}
-                                            className="object-cover rounded-full"
-                                        />
+                                    <div className="w-10 h-10 rounded-full overflow-hidden relative border border-pink-200">
+                                        {session?.user?.image && session.user.image.trim() !== "" ? (
+                                            <Image
+                                                src={session.user.image}
+                                                referrerPolicy="no-referrer"
+                                                alt="User Avatar"
+                                                width={40}
+                                                height={40}
+                                                className="object-cover w-full h-full"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-pink-600 flex items-center justify-center text-white font-bold text-sm uppercase">
+                                                {session?.user?.name ? session.user.name.slice(0, 2).toUpperCase() : "US"}
+                                            </div>
+                                        )}
                                     </div>
                                 </label>
                                 <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[50] p-3 shadow bg-base-100 rounded-box w-56 border border-pink-100 dark:border-pink-900/30">

@@ -3,9 +3,10 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaGoogle, FaEnvelope, FaLock, FaPaw } from "react-icons/fa";
+import {  FaEnvelope, FaLock, FaPaw } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -48,6 +49,8 @@ export default function LoginPage() {
             toast.error("Google login failed");
         }
     };
+
+    
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-colors duration-300">
@@ -117,7 +120,7 @@ export default function LoginPage() {
                     type="button"
                     className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 text-slate-700 dark:text-zinc-200 font-bold py-3 rounded-xl border border-slate-200 dark:border-zinc-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                 >
-                    <FaGoogle className="text-red-500 text-lg" />
+                    <FcGoogle className="text-red-500 text-lg" />
                     <span>Continue with Google</span>
                 </button>
 

@@ -1,30 +1,26 @@
 import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { MongoClient } from "mongodb";
 
 const client = new MongoClient(process.env.MONGO_URI);
 const db = client.db("petAdoption");
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db, {
-    client
-  }),
-  
-  emailAndPassword: {
-    enabled: true,
-  },
-
-
-  user: {
-    additionalFields: {
-      image: {
-        type: "string",
-        required: false,
-      },
+  database: mongodbAdapter(db, { client }),
+  emailAndPassword: { enabled: true },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENTID,
+      clientSecret: process.env.GOOGLE_SECRET,
     },
   },
 
-
-  baseURL: "http://localhost:3000/api/auth", 
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+    },
+  },
+  baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
 });

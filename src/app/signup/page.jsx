@@ -3,12 +3,13 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FaGoogle, FaEnvelope, FaLock, FaUser, FaPaw, FaImage } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaUser, FaPaw, FaImage } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignupPage() {
-    const router = useRouter(); 
+    const router = useRouter();
 
     const handleSignup = async (e) => {
         e.preventDefault();
@@ -17,12 +18,10 @@ export default function SignupPage() {
 
         const { name, email, imageUrl, password, confirmPassword } = user;
 
-
         if (password !== confirmPassword) {
             return toast.error("Passwords do not match!");
         }
 
-   
         if (password.length < 6) {
             return toast.error("Password must be at least 6 characters long!");
         }
@@ -31,12 +30,10 @@ export default function SignupPage() {
             return toast.error("Password must contain at least one uppercase letter!");
         }
 
-      
         if (!/[a-z]/.test(password)) {
             return toast.error("Password must contain at least one lowercase letter!");
         }
 
-       
         const { data, error } = await authClient.signUp.email({
             name: name,
             email: email,
@@ -47,19 +44,28 @@ export default function SignupPage() {
         if (data) {
             toast.success("Account created successfully!");
             await authClient.signOut();
-            router.push("/login"); 
-            router.refresh();      
+            router.push("/login");
+            router.refresh();
         }
-        
+
         if (error) {
             toast.error(`Signup failed: ${error.message}`);
         }
     };
 
-    const handleGoogleSignup = () => {
-      
+    const handleGoogleSignup = async () => {
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/", 
+            });
+        } catch (err) {
+            console.error("Google Auth Error:", err);
+            toast.error("Google signup failed. Please try again.");
+        }
     };
 
+    // 🌸 রিটার্ন ব্লকটি এখন সাকসেসফুলি মূল ফাংশনের ভেতরে আছে
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-colors duration-300">
             <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-pink-100 dark:border-pink-950/20">
@@ -120,7 +126,7 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-               
+                    {/* Password Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Password</label>
                         <div className="relative">
@@ -135,7 +141,7 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-              
+                    {/* Confirm Password Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Confirm Password</label>
                         <div className="relative">
@@ -172,7 +178,7 @@ export default function SignupPage() {
                     type="button"
                     className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 text-slate-700 dark:text-zinc-200 font-bold py-3 rounded-xl border border-slate-200 dark:border-zinc-700 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                 >
-                    <FaGoogle className="text-red-500 text-lg" />
+                    <FcGoogle className="text-red-500 text-lg" />
                     <span>Continue with Google</span>
                 </button>
 
