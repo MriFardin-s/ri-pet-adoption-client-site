@@ -36,6 +36,10 @@ export default function MyListings() {
         );
     };
 
+    const handleDeletePet = (deletedPetId) => {
+        setPets((prevPets) => prevPets.filter((p) => p._id !== deletedPetId));
+    };
+
     const handleStatusUpdated = (petId, newStatus) => {
         setPets((prevPets) =>
             prevPets.map((p) => (p._id === petId ? { ...p, status: newStatus } : p))
@@ -75,6 +79,7 @@ export default function MyListings() {
                     onClose={() => setSelectedPet(null)}
                     pet={selectedPet}
                     onUpdateSuccess={handleUpdatePet}
+                    onDeleteSuccess={handleDeletePet}
                 />
             )}
 
