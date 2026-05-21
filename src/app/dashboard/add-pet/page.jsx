@@ -47,10 +47,16 @@ export default function AddPet() {
 
     const loadingToast = toast.loading("Listing Pet...");
 
+    const {data: tokenData} = await authClient.token();
+  
+
     try {
       const res = await fetch("http://localhost:9000/pets", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" ,
+        Authorization: `Bearer ${tokenData?.token}`
+      
+        },
         body: JSON.stringify(petData),
       });
 

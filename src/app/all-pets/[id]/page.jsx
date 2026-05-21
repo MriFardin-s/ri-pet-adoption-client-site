@@ -3,18 +3,28 @@ import Image from "next/image";
 import { FaPaw, FaUser, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import AdoptForm from "@/components/AdoptForm";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function PetDetailsPage({ params }) {
   const { id } = await params;
+  const {token} = await auth.api.getToken({
+    headers: await headers()
+
+  })
+
 
   const session = await auth.api.getSession({
     headers: await import("next/headers").then((h) => h.headers()),
+    
   });
 
   let pet = null;
 
   try {
     const res = await fetch(`http://localhost:9000/pets/${id}`, {
+      headers: {
+        authorization: `Bearer ${token}`
+      },
       cache: "no-store",
     });
 
