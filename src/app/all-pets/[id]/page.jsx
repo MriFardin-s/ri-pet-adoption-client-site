@@ -121,6 +121,7 @@ export default async function PetDetailsPage({ params }) {
 
         <div className="lg:col-span-1 flex flex-col h-full">
           <AdoptForm
+            key={pet.status} 
             petName={pet?.name || pet?.petName || ""}
             petId={pet?._id || id}
             petStatus={pet?.status || "available"}
