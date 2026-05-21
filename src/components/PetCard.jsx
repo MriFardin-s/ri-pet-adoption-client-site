@@ -23,9 +23,9 @@ export default function PetCard({ pet }) {
             "https://placehold.co/600x400?text=Pet"
           }
           alt={pet.petName || "Pet"}
-          width={400}
-          height={300}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          width={500}
+          height={500}
+          className="w-full h-60 object-contain bg-gray-100 group-hover:scale-105 transition-transform duration-500"
         />
 
         <span className="absolute top-4 right-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-pink-500 dark:text-pink-400 text-xs font-bold px-3 py-1 rounded-full border border-pink-50 dark:border-zinc-800 flex items-center gap-1 shadow-sm">

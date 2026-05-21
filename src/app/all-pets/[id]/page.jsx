@@ -1,18 +1,15 @@
 import React from "react";
 import Image from "next/image";
-
-import {
-  FaPaw,
-  FaUser,
-  FaMapMarkerAlt,
-  FaClock,
-} from "react-icons/fa";
-
+import { FaPaw, FaUser, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import AdoptForm from "@/components/AdoptForm";
+import { auth } from "@/lib/auth";
 
 export default async function PetDetailsPage({ params }) {
-
   const { id } = await params;
+
+  const session = await auth.api.getSession({
+    headers: await import("next/headers").then((h) => h.headers()),
+  });
 
   let pet = null;
 
@@ -28,6 +25,7 @@ export default async function PetDetailsPage({ params }) {
     console.error("Error fetching pet details:", error);
   }
 
+  const isOwner = session?.user?.email && pet?.ownerEmail && session.user.email === pet.ownerEmail;
 
   if (!pet) {
     return (
@@ -44,36 +42,27 @@ export default async function PetDetailsPage({ params }) {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 py-10 px-4 sm:px-6 lg:px-8">
-
-   
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6 items-stretch">
-
-
         <div className="lg:col-span-2 flex flex-col">
           <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-pink-100 dark:border-pink-950/30 flex-1 flex flex-col">
-
-            {/* IMAGE */}
-            <div className="relative h-[400px] w-full bg-slate-200 dark:bg-zinc-800">
+            <div className="relative h-[400px] w-full bg-slate-200 dark:bg-zinc-800 rounded-3xl overflow-hidden">
               <Image
-                width={1200}
-                height={600}
+                fill
                 src={
                   pet.imageUrl ||
                   pet.image ||
                   "https://placehold.co/1200x600?text=Pet+Image"
                 }
                 alt={pet.petName || pet.name || "Pet"}
-                className="w-full h-full object-cover"
+                className="object-cover object-center w-full h-full"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-              <span className="absolute top-4 right-4 bg-pink-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-md">
+              <span className="absolute top-4 right-4 bg-pink-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-md z-10">
                 {pet.species || "Animal"}
               </span>
             </div>
 
-            {/* CONTENT */}
             <div className="p-6 sm:p-8 space-y-6 flex-1">
-
-              {/* TOP */}
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-zinc-800 pb-4">
                 <div>
                   <h1 className="text-3xl font-extrabold text-slate-800 dark:text-zinc-100 flex items-center gap-2">
@@ -92,9 +81,7 @@ export default async function PetDetailsPage({ params }) {
                 </div>
               </div>
 
-    
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-           
                 <div className="bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-slate-100 dark:border-zinc-800 flex items-center gap-3">
                   <FaClock className="text-pink-500 text-xl" />
                   <div>
@@ -107,7 +94,6 @@ export default async function PetDetailsPage({ params }) {
                   </div>
                 </div>
 
-                {/* GENDER */}
                 <div className="bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-slate-100 dark:border-zinc-800 flex items-center gap-3">
                   <FaUser className="text-pink-500 text-xl" />
                   <div>
@@ -121,7 +107,6 @@ export default async function PetDetailsPage({ params }) {
                 </div>
               </div>
 
-              {/* DESCRIPTION */}
               <div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-zinc-200 mb-3">
                   About {pet.petName || pet.name}
@@ -130,20 +115,19 @@ export default async function PetDetailsPage({ params }) {
                   {pet.description || "No description provided."}
                 </p>
               </div>
-
             </div>
           </div>
         </div>
 
-  
         <div className="lg:col-span-1 flex flex-col h-full">
-         <AdoptForm 
-          petName={pet?.name || pet?.petName || ""} 
-          petId={pet?._id || id} 
-          petStatus={pet?.status || "available"} 
-        />
+          <AdoptForm
+            petName={pet?.name || pet?.petName || ""}
+            petId={pet?._id || id}
+            petStatus={pet?.status || "available"}
+            ownerEmail={pet?.ownerEmail}
+            isOwner={isOwner}
+          />
         </div>
-
       </div>
     </div>
   );
