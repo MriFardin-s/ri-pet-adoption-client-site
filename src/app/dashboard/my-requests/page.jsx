@@ -18,8 +18,16 @@ export default function MyRequestsPage() {
 
   const fetchMyRequests = async () => {
     try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
       const res = await fetch(
-        `http://localhost:9000/adoptions/my-requests?email=${session.user.email}`
+        `http://localhost:9000/adoptions/my-requests?email=${session.user.email}`, {
+          method: "GET",
+          headers: {
+            ...(token && { "Authorization": `Bearer ${token}` })
+          }
+        }
       );
       if (!res.ok) throw new Error("Failed to fetch requests");
       const data = await res.json();
@@ -55,8 +63,14 @@ export default function MyRequestsPage() {
     if (!selectedRequest) return;
 
     try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
       const res = await fetch(`http://localhost:9000/adoptions/${selectedRequest._id}`, {
         method: "DELETE",
+        headers: {
+          ...(token && { "Authorization": `Bearer ${token}` })
+        }
       });
 
       if (!res.ok) throw new Error("Failed to delete request");

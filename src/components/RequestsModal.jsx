@@ -1,13 +1,20 @@
 "use client"
 import React from "react";
 import { toast } from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function RequestsModal({ isOpen, onClose, petId, onRefresh, requests, loading }) {
   const handleStatusChange = async (requestId, status) => {
     try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
       const res = await fetch(`http://localhost:9000/adoptions/status/${requestId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        },
         body: JSON.stringify({ status, petId }),
       });
       if (!res.ok) throw new Error();

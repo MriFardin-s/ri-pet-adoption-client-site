@@ -47,15 +47,15 @@ export default function AddPet() {
 
     const loadingToast = toast.loading("Listing Pet...");
 
-    const {data: tokenData} = await authClient.token();
-  
-
     try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
       const res = await fetch("http://localhost:9000/pets", {
         method: "POST",
-        headers: { "Content-Type": "application/json" ,
-        Authorization: `Bearer ${tokenData?.token}`
-      
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
         },
         body: JSON.stringify(petData),
       });
@@ -64,7 +64,8 @@ export default function AddPet() {
         toast.success("Pet Added Successfully!", { id: loadingToast });
         form.reset(); 
       } else {
-        toast.error("Failed to add pet.", { id: loadingToast });
+        const errorData = await res.json().catch(() => ({}));
+        toast.error(errorData.message || "Failed to add pet.", { id: loadingToast });
       }
     } catch (error) {
       console.error(error);

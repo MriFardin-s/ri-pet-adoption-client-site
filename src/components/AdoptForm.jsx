@@ -18,17 +18,37 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
   }, []);
 
   useEffect(() => {
-    if (!petId || !session?.user?.email) return;
+  if (!session?.user?.email || !petId) return;
 
-    fetch(`http://localhost:9000/adoptions/user-status?petId=${petId}&email=${encodeURIComponent(session.user.email)}`)
-      .then((res) => (res.ok ? res.json() : { status: null }))
-      .then((data) => {
-        if (data && data.status) {
-          setDbRequestStatus(data.status);
+  const fetchUserStatus = async () => {
+    try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
+      const email = encodeURIComponent(session.user.email);
+      const url = `http://localhost:9000/adoptions/user-status?petId=${petId}&email=${email}`;
+
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
         }
-      })
-      .catch((err) => console.error(err));
-  }, [petId, session?.user?.email]);
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch status");
+
+      const data = await res.json();
+      if (data && data.status) {
+        setDbRequestStatus(data.status);
+      }
+    } catch (err) {
+      console.error("Error fetching status:", err);
+    }
+  };
+
+  fetchUserStatus();
+}, [petId, session?.user?.email]); 
 
   const handleAdoptSubmit = async (e) => {
     e.preventDefault();
@@ -56,9 +76,15 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
     };
 
     try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
       const res = await fetch("http://localhost:9000/adoptions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        },
         body: JSON.stringify(adoptionRequest),
       });
 
@@ -83,9 +109,15 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
   const handleApproveStatus = async () => {
     setIsSubmitting(true);
     try {
+      const tokenResponse = await authClient.token();
+      const token = tokenResponse?.data?.token || tokenResponse?.token;
+
       const res = await fetch(`http://localhost:9000/adoptions/approve/${petId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        },
       });
       if (!res.ok) throw new Error("Failed to approve request");
       toast.success("Adoption request approved successfully!");

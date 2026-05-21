@@ -16,10 +16,32 @@ export default function MyListings() {
     useEffect(() => {
         if (!currentUserEmail) return;
 
-        fetch(`http://localhost:9000/pets/my-listings?email=${currentUserEmail}`)
-            .then((res) => res.json())
-            .then((data) => setPets(data))
-            .catch((err) => console.error(err));
+       const fetchMyListings = async () => {
+    try {
+        const tokenResponse = await authClient.token();
+        
+
+        const token = tokenResponse?.data?.token || tokenResponse?.token;
+
+        const res = await fetch(`http://localhost:9000/pets/my-listings?email=${currentUserEmail}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token ? `Bearer ${token}` : "" 
+            }
+        });
+
+        if (res.status === 401) throw new Error("Unauthorized - চেক করুন টোকেন ভ্যালিড কি না");
+        if (!res.ok) throw new Error("Failed to fetch");
+
+        const data = await res.json();
+        setPets(data);
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+        fetchMyListings();
     }, [currentUserEmail]);
 
     const handleEditClick = (pet) => {

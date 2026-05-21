@@ -29,9 +29,15 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
         const updatedData = Object.fromEntries(formData.entries());
 
         try {
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token || tokenResponse?.token;
+
             const res = await fetch(`http://localhost:9000/pets/${pet._id}`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    ...(token && { "Authorization": `Bearer ${token}` })
+                },
                 body: JSON.stringify(updatedData),
             });
             
@@ -60,8 +66,14 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
         setIsDeleting(true);
         
         try {
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token || tokenResponse?.token;
+
             const res = await fetch(`http://localhost:9000/pets/${pet._id}`, {
                 method: "DELETE",
+                headers: {
+                    ...(token && { "Authorization": `Bearer ${token}` })
+                }
             });
 
             if (!res.ok) throw new Error();

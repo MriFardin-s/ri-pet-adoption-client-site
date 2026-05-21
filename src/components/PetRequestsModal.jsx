@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiXMark, HiCheck, HiOutlineCalendar, HiOutlineEnvelope, HiOutlineUser } from "react-icons/hi2";
+import { authClient } from "@/lib/auth-client";
 
 export default function PetRequestsModal({ isOpen, onClose, pet, onStatusUpdated }) {
     const [requests, setRequests] = useState([]);
@@ -14,29 +15,45 @@ export default function PetRequestsModal({ isOpen, onClose, pet, onStatusUpdated
     useEffect(() => {
         if (!isOpen || !pet?._id) return;
 
-        setLoading(true);
-        fetch(`http://localhost:9000/adoptions/pet-requests/${pet._id}`)
-            .then((res) => {
+        const fetchPetRequests = async () => {
+            setLoading(true);
+            try {
+                const tokenResponse = await authClient.token();
+                const token = tokenResponse?.data?.token || tokenResponse?.token;
+
+                const res = await fetch(`http://localhost:9000/adoptions/pet-requests/${pet._id}`, {
+                    method: "GET",
+                    headers: {
+                        ...(token && { "Authorization": `Bearer ${token}` })
+                    }
+                });
+
                 if (!res.ok) throw new Error("Not Found");
-                return res.json();
-            })
-            .then((data) => {
+                const data = await res.json();
                 setRequests(data);
-                setLoading(false);
-            })
-            .catch(() => {
+            } catch (error) {
                 toast.error("Failed to load requests from backend");
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchPetRequests();
     }, [isOpen, pet?._id]);
 
     const handleAction = async (requestId, action) => {
         const targetStatus = action === "APPROVED" ? "approved" : "rejected";
 
         try {
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token || tokenResponse?.token;
+
             const res = await fetch(`http://localhost:9000/adoptions/status/${requestId}`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    ...(token && { "Authorization": `Bearer ${token}` })
+                },
                 body: JSON.stringify({ status: targetStatus, petId: pet._id }),
             });
 
@@ -129,7 +146,7 @@ export default function PetRequestsModal({ isOpen, onClose, pet, onStatusUpdated
                                             </div>
                                             
                                             <div className="flex items-start gap-2.5">
-                                                <HiOutlineMail className="text-slate-400 dark:text-zinc-500 mt-0.5 text-base" />
+                                                <HiOutlineEnvelope className="text-slate-400 dark:text-zinc-500 mt-0.5 text-base" />
                                                 <div className="break-all">
                                                     <span className="font-bold text-slate-400 dark:text-zinc-500 text-xs uppercase tracking-wider block">Requester Email</span>
                                                     <p className="font-semibold text-slate-800 dark:text-zinc-100">{request.userEmail || request.email}</p>
@@ -165,7 +182,7 @@ export default function PetRequestsModal({ isOpen, onClose, pet, onStatusUpdated
                                                             onClick={() => handleAction(request._id, "REJECTED")}
                                                             className="px-4 py-2 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100/70 dark:hover:bg-rose-950/40 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                                                         >
-                                                            <HiX className="text-sm stroke-2" /> Reject
+                                                            <HiXMark className="text-sm stroke-2" /> Reject
                                                         </motion.button>
                                                         <motion.button 
                                                             whileHover={{ opacity: 0.9 }}
