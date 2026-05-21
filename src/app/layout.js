@@ -28,12 +28,47 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="">
+      <body className="bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-50 min-h-screen transition-colors duration-200">
         <ThemeProvider attribute="class" defaultTheme="light">
-        <Navbar/>
-          {children}
+          <Navbar />
+          <main className="min-h-[calc(100vh-150px)]">
+            {children}
+          </main>
           <Footer />
-          <Toaster position="top-center" reverseOrder={false} />
+          <Toaster
+            position="top-center"
+            reverseOrder={false}
+            toastOptions={{
+              style: {
+                background: '#fff',
+                color: '#1e293b',
+                border: '1px solid #fce7f3',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: '500',
+                padding: '12px 24px',
+                boxShadow: '0 4px 12px rgba(219, 39, 119, 0.08)',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#db2777',
+                  secondary: '#fff',
+                },
+                style: {
+                  border: '1px solid #fbcfe8',
+                }
+              },
+              error: {
+                iconTheme: {
+                  primary: '#e11d48',
+                  secondary: '#fff',
+                },
+                style: {
+                  border: '1px solid #fecdd3',
+                }
+              },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

@@ -9,7 +9,7 @@ import Volunteer from "@/components/home/Volunteer";
 
 export default function HomePage() {
   return (
-    <div className="bg-base-100 text-base-content min-h-screen transition-colors duration-300">
+    <div className="min-h-screen transition-colors duration-300">
       <HeroBanner />
       <FeaturedPets />
       <StaticInfo />

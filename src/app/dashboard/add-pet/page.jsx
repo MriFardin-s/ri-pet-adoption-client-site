@@ -1,20 +1,32 @@
 'use client';
 
-import React, { useState } from "react";
+import React from "react";
 import { toast } from "react-hot-toast";
 import { PawPrint } from "lucide-react";
+import { authClient } from "@/lib/auth-client"; 
 
 export default function AddPet() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: session, isPending } = authClient.useSession();
+  const currentUserEmail = session?.user?.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+
+    if (!currentUserEmail) {
+      toast.error("You must be logged in to list a pet!");
+      return;
+    }
 
     const form = e.currentTarget; 
     const formData = new FormData(form);
     const petData = Object.fromEntries(formData.entries());
-    console.log("Submitting pet data:", petData);
+    
+ 
+    petData.userEmail = currentUserEmail; 
+
+
+    const loadingToast = toast.loading("Listing Pet...");
 
     try {
       const res = await fetch("http://localhost:9000/pets", {
@@ -26,18 +38,25 @@ export default function AddPet() {
       });
 
       if (res.ok) {
-        toast.success("Pet Added Successfully!");
+        toast.success("Pet Added Successfully!", { id: loadingToast });
         form.reset(); 
       } else {
-        toast.error("Failed to add pet.");
+        toast.error("Failed to add pet.", { id: loadingToast });
       }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong!");
-    } finally {
-      setIsSubmitting(false);
+      toast.error("Something went wrong!", { id: loadingToast });
     }
   };
+
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <span className="loading loading-spinner loading-lg text-pink-500"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto my-8 p-6 sm:p-8 bg-white dark:bg-zinc-900 shadow-xl rounded-3xl border border-pink-100 dark:border-zinc-800">
@@ -180,7 +199,6 @@ export default function AddPet() {
               type="text"
               name="location"
               required
-              placeholder="e.g., Banani, Dhaka"
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 shadow-sm transition-all"
             />
           </div>
@@ -199,17 +217,16 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Owner Email */}
+          {/* User Email */}
           <div className="flex flex-col w-full md:col-span-2">
             <label className="mb-2 font-semibold text-sm text-slate-400 dark:text-zinc-500">
-              Owner Email
+              User Email (Active Session)
             </label>
             <input
               type="email"
-              name="ownerEmail"
-              readOnly
-              defaultValue="owner@example.com"
-              className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl bg-zinc-50 dark:bg-zinc-800 text-slate-400 border-dashed cursor-not-allowed focus:outline-none"
+              disabled
+              value={currentUserEmail || "Not Logged In"}
+              className="w-full px-4 py-3 border border-zinc-200 dark:border-zinc-700 rounded-2xl bg-zinc-50 dark:bg-zinc-800 text-slate-400 border-dashed cursor-not-allowed focus:outline-none text-sm"
             />
           </div>
 
@@ -222,7 +239,6 @@ export default function AddPet() {
               type="url"
               name="imageUrl"
               required
-              placeholder="https://example.com/pet.jpg"
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-2xl focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 shadow-sm transition-all"
             />
           </div>
@@ -235,7 +251,6 @@ export default function AddPet() {
             <textarea
               name="description"
               required
-              placeholder="Describe the pet's personality and needs..."
               className="w-full px-4 py-3 border border-pink-200 dark:border-zinc-700 rounded-3xl min-h-[120px] focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 shadow-sm transition-all resize-y"
             ></textarea>
           </div>
@@ -244,17 +259,10 @@ export default function AddPet() {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={!currentUserEmail}
           className="w-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold tracking-wide shadow-lg py-4 transition-all hover:opacity-90 active:scale-[0.99] flex items-center justify-center gap-2 disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
         >
-          {isSubmitting ? (
-            <div className="flex items-center justify-center gap-2">
-              <span className="loading loading-spinner loading-sm"></span>
-              <span>Listing Pet...</span>
-            </div>
-          ) : (
-            "Submit Pet for Adoption"
-          )}
+          Submit Pet for Adoption
         </button>
       </form>
     </div>
