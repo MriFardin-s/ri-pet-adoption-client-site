@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { Eye, Trash2 } from "lucide-react";
 import DeleteAlert from "@/components/DeleteAlert";
+import { motion } from "framer-motion";
 
 export default function MyRequestsPage() {
   const { data: session, isPending: sessionLoading } = authClient.useSession();
@@ -72,7 +73,21 @@ export default function MyRequestsPage() {
   if (sessionLoading || isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-sm text-slate-400 animate-pulse">Loading your requests...</p>
+        <div className="flex flex-col items-center gap-4">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full"
+          />
+          <motion.p
+            initial={{ opacity: 0.4 }}
+            animate={{ opacity: 1 }}
+            transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.8 }}
+            className="text-sm font-medium text-slate-400"
+          >
+            Loading your requests...
+          </motion.p>
+        </div>
       </div>
     );
   }
@@ -85,19 +100,45 @@ export default function MyRequestsPage() {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
+  };
+
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="mb-6">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="p-6 max-w-6xl mx-auto"
+    >
+      <motion.div variants={itemVariants} className="mb-6">
         <h1 className="text-2xl font-black text-slate-800 dark:text-zinc-100">My Adoption Requests</h1>
         <p className="text-sm text-slate-400 mt-1">Track and manage the status of your pet adoption requests</p>
-      </div>
+      </motion.div>
 
       {requests.length === 0 ? (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/50 rounded-2xl p-12 text-center shadow-sm">
-          <p className="text-slate-500 dark:text-zinc-400 font-medium">You haven't requested to adopt any pets yet.</p>
-        </div>
+        <motion.div
+          variants={itemVariants}
+          className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/50 rounded-2xl p-12 text-center shadow-sm"
+        >
+          <p className="text-slate-500 dark:text-zinc-400 font-medium">You have not requested to adopt any pets yet.</p>
+        </motion.div>
       ) : (
-        <div className="overflow-x-auto bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/50 rounded-2xl shadow-sm">
+        <motion.div
+          variants={itemVariants}
+          className="overflow-x-auto bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/50 rounded-2xl shadow-sm"
+        >
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 dark:bg-zinc-950 text-slate-500 dark:text-zinc-400 font-bold text-xs uppercase tracking-wider border-b border-slate-100 dark:border-zinc-800">
@@ -126,33 +167,38 @@ export default function MyRequestsPage() {
                         ${request.status === "approved" || request.status === "adopted"
                           ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-950/50"
                           : request.status === "rejected"
-                          ? "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-950/50"
-                          : "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-950/50"
+                            ? "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-950/50"
+                            : "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-950/50"
                         }`}
                     >
                       {request.status || "pending"}
                     </span>
                   </td>
                   <td className="px-6 py-4 flex items-center justify-center gap-3">
-                    <Link
-                      href={`/all-pets/${request.petId}`}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-medium text-xs transition"
-                    >
-                      <Eye size={14} /> View
+                    <Link href={`/all-pets/${request.petId}`}>
+                      <motion.span
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-medium text-xs transition cursor-pointer"
+                      >
+                        <Eye size={14} /> View
+                      </motion.span>
                     </Link>
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       type="button"
                       onClick={() => openDeleteModal(request)}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-medium text-xs transition"
                     >
                       <Trash2 size={14} /> Cancel
-                    </button>
+                    </motion.button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </motion.div>
       )}
 
       {isOpen && (
@@ -163,6 +209,6 @@ export default function MyRequestsPage() {
           petName={selectedRequest?.petName || ""}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

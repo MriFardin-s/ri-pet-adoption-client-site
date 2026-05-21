@@ -1,25 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
+import { motion } from "framer-motion";
 
 function useDashboardStats(email) {
-  const [stats, setStats] = React.useState({ activeRequests: 0, myListings: 0, adoptedPets: 0 });
-  const [loading, setLoading] = React.useState(true);
+  const [stats, setStats] = useState({ activeRequests: 0, myListings: 0, adoptedPets: 0 });
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!email) return;
-
 
     fetch(`http://localhost:9000/pets/my-listings?email=${encodeURIComponent(email)}`)
       .then((res) => (res.ok ? res.json() : []))
       .then((listings) => {
         const total = listings.length;
         const adopted = listings.filter((p) => p.status === "adopted").length;
-        
 
         setStats({
-          activeRequests: total - adopted, 
+          activeRequests: total - adopted,
           myListings: total,
           adoptedPets: adopted,
         });
@@ -36,63 +35,103 @@ function useDashboardStats(email) {
 
 export default function DashboardPage() {
   const { data: session, isPending: isSessionLoading } = authClient.useSession();
+  const [isMounted, setIsMounted] = useState(false);
+  
   const userEmail = session?.user?.email;
-
   const { stats, loading: isStatsLoading } = useDashboardStats(userEmail);
 
-  if (isSessionLoading || (userEmail && isStatsLoading)) {
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted || isSessionLoading || (userEmail && isStatsLoading)) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
-        <span className="loading loading-spinner loading-lg text-pink-600"></span>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-12 h-12 border-4 border-pink-200 border-t-pink-600 rounded-full"
+        />
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div className="p-6 text-center bg-white dark:bg-zinc-900 border border-pink-100 dark:border-zinc-800 rounded-3xl">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-6 text-center bg-white dark:bg-zinc-900 border border-pink-100 dark:border-zinc-800 rounded-3xl shadow-sm"
+      >
         <p className="text-sm font-semibold text-slate-500 dark:text-zinc-400">
           Please log in to access your customized dashboard panel.
         </p>
-      </div>
+      </motion.div>
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120 } }
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <motion.div variants={itemVariants}>
         <h1 className="text-2xl font-black text-pink-700 dark:text-pink-400">
-          Welcome back, {session?.user?.name || "User"}!
+          Welcome back, {session.user.name || "User"}!
         </h1>
         <p className="text-pink-950/70 dark:text-pink-100/70 font-medium text-sm mt-1">
           Select an option from the sidebar panel to manage your pet adoption requests, listings, or add a new pet.
         </p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-        {/* Active Requests */}
-        <div className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm">
+      </motion.div>
+
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+        <motion.div 
+          whileHover={{ y: -4 }}
+          className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm"
+        >
           <span className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider">Active Requests</span>
           <p className="text-3xl font-black text-pink-950 dark:text-white mt-2">
             {stats.activeRequests}
           </p>
-        </div>
+        </motion.div>
         
-        {/* My Listings */}
-        <div className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm">
+        <motion.div 
+          whileHover={{ y: -4 }}
+          className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm"
+        >
           <span className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider">My Listings</span>
           <p className="text-3xl font-black text-pink-950 dark:text-white mt-2">
             {stats.myListings}
           </p>
-        </div>
+        </motion.div>
         
-        {/* Adopted Pets */}
-        <div className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm">
+        <motion.div 
+          whileHover={{ y: -4 }}
+          className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm"
+        >
           <span className="text-xs font-bold text-pink-700 dark:text-pink-300 uppercase tracking-wider">Adopted Pets</span>
           <p className="text-3xl font-black text-pink-950 dark:text-white mt-2">
             {stats.adoptedPets}
           </p>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -3,16 +3,16 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {  FaEnvelope, FaLock, FaPaw } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaPaw } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
     const router = useRouter();
     const { data: session, isPending } = authClient.useSession();
 
-    
     useEffect(() => {
         if (!isPending && session?.user) {
             
@@ -50,11 +50,14 @@ export default function LoginPage() {
         }
     };
 
-    
-
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-colors duration-300">
-            <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-pink-100 dark:border-pink-950/20">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-pink-100 dark:border-pink-950/20"
+            >
 
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-pink-100 dark:bg-pink-950/50 text-pink-500 mb-3">
@@ -64,9 +67,7 @@ export default function LoginPage() {
                     <p className="text-sm text-slate-400 mt-1">Login to manage your pet adoptions</p>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleLogin} className="space-y-4">
-                    {/* Email Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Email Address</label>
                         <div className="relative">
@@ -81,7 +82,6 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    {/* Password Input */}
                     <div>
                         <div className="flex justify-between items-center pb-1.5">
                             <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Password</label>
@@ -98,7 +98,6 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
                     <button
                         type="submit"
                         className="w-full mt-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3.5 rounded-xl border-none shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
@@ -107,14 +106,12 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                {/* Divider */}
                 <div className="relative flex py-5 items-center">
                     <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
                     <span className="flex-shrink mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">Or continue with</span>
                     <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
                 </div>
 
-                {/* Google Login Button */}
                 <button
                     onClick={handleGoogleLogin}
                     type="button"
@@ -124,7 +121,6 @@ export default function LoginPage() {
                     <span>Continue with Google</span>
                 </button>
 
-                {/* Footer Link */}
                 <p className="text-center text-sm text-slate-500 dark:text-zinc-400 mt-8">
                     Do not have an account?{" "}
                     <Link href="/signup" className="font-bold text-pink-500 hover:underline">
@@ -132,7 +128,7 @@ export default function LoginPage() {
                     </Link>
                 </p>
 
-            </div>
+            </motion.div>
         </div>
     );
 }

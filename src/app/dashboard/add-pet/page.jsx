@@ -1,39 +1,56 @@
-'use client';
+"use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { PawPrint } from "lucide-react";
 import { authClient } from "@/lib/auth-client"; 
+import { motion } from "framer-motion";
 
 export default function AddPet() {
-
   const { data: session, isPending } = authClient.useSession();
-  const currentUserEmail = session?.user?.email;
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted || isPending) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px] text-zinc-500">
+        Please log in to add a pet.
+      </div>
+    );
+  }
+
+  const currentUserEmail = session.user.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!currentUserEmail) {
-      toast.error("You must be logged in to list a pet!");
-      return;
-    }
-
     const form = e.currentTarget; 
     const formData = new FormData(form);
     const petData = Object.fromEntries(formData.entries());
-    
- 
     petData.userEmail = currentUserEmail; 
-
 
     const loadingToast = toast.loading("Listing Pet...");
 
     try {
       const res = await fetch("http://localhost:9000/pets", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(petData),
       });
 
@@ -49,23 +66,25 @@ export default function AddPet() {
     }
   };
 
-
-  if (isPending) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <span className="loading loading-spinner loading-lg text-pink-500"></span>
-      </div>
-    );
-  }
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
+  };
 
   return (
-    <div className="max-w-4xl mx-auto my-8 p-6 sm:p-8 bg-white dark:bg-zinc-900 shadow-xl rounded-3xl border border-pink-100 dark:border-zinc-800">
-
-      {/* Header Section */}
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="max-w-4xl mx-auto my-8 p-6 sm:p-8 bg-white dark:bg-zinc-900 shadow-xl rounded-3xl border border-pink-100 dark:border-zinc-800"
+    >
       <div className="border-b border-pink-100 dark:border-zinc-800 pb-4 mb-6 flex items-start gap-4">
-        <div className="p-3 bg-pink-50 dark:bg-zinc-800 rounded-2xl text-pink-500">
+        <motion.div 
+          whileHover={{ scale: 1.05, rotate: 5 }}
+          className="p-3 bg-pink-50 dark:bg-zinc-800 rounded-2xl text-pink-500"
+        >
           <PawPrint size={28} />
-        </div>
+        </motion.div>
         <div>
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Add a New Pet</h2>
           <p className="text-sm text-slate-500 dark:text-zinc-400">Fill in the details to find a loving home for your furry friend.</p>
@@ -74,8 +93,6 @@ export default function AddPet() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          {/* Pet Name */}
           <div className="flex flex-col w-full md:col-span-2">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Pet Name <span className="text-rose-500">*</span>
@@ -89,7 +106,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Species */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Species <span className="text-rose-500">*</span>
@@ -109,7 +125,6 @@ export default function AddPet() {
             </select>
           </div>
 
-          {/* Breed */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Breed <span className="text-rose-500">*</span>
@@ -123,7 +138,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Age */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Age (in months/years) <span className="text-rose-500">*</span>
@@ -137,7 +151,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Gender */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Gender <span className="text-rose-500">*</span>
@@ -154,7 +167,6 @@ export default function AddPet() {
             </select>
           </div>
 
-          {/* Health Status */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Health Status <span className="text-rose-500">*</span>
@@ -172,7 +184,6 @@ export default function AddPet() {
             </select>
           </div>
 
-          {/* Vaccination Status */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Vaccination Status <span className="text-rose-500">*</span>
@@ -190,7 +201,6 @@ export default function AddPet() {
             </select>
           </div>
 
-          {/* Location */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Location <span className="text-rose-500">*</span>
@@ -203,7 +213,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Adoption Fee */}
           <div className="flex flex-col w-full">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Adoption Fee (BDT) <span className="text-rose-500">*</span>
@@ -217,7 +226,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* User Email */}
           <div className="flex flex-col w-full md:col-span-2">
             <label className="mb-2 font-semibold text-sm text-slate-400 dark:text-zinc-500">
               User Email (Active Session)
@@ -230,7 +238,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Image URL */}
           <div className="flex flex-col w-full md:col-span-2">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Image URL <span className="text-rose-500">*</span>
@@ -243,7 +250,6 @@ export default function AddPet() {
             />
           </div>
 
-          {/* Description */}
           <div className="flex flex-col w-full md:col-span-2">
             <label className="mb-2 font-semibold text-sm text-slate-700 dark:text-zinc-200">
               Description <span className="text-rose-500">*</span>
@@ -256,15 +262,16 @@ export default function AddPet() {
           </div>
         </div>
 
-        {/* Submit Button */}
-        <button
+        <motion.button
+          whileHover={{ opacity: 0.95 }}
+          whileTap={{ scale: 0.99 }}
           type="submit"
           disabled={!currentUserEmail}
-          className="w-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold tracking-wide shadow-lg py-4 transition-all hover:opacity-90 active:scale-[0.99] flex items-center justify-center gap-2 disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
+          className="w-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold tracking-wide shadow-lg py-4 transition-all flex items-center justify-center gap-2 disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
         >
           Submit Pet for Adoption
-        </button>
+        </motion.button>
       </form>
-    </div>
+    </motion.div>
   );
 }

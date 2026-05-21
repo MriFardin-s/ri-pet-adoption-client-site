@@ -4,10 +4,12 @@ import React, { useState, useEffect } from "react";
 import { FaPaw, FaCheck } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { motion } from "framer-motion";
 
 export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwner }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [dbRequestStatus, setDbRequestStatus] = useState(null);
 
   const { data: session, isPending } = authClient.useSession();
 
@@ -15,13 +17,26 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!petId || !session?.user?.email) return;
+
+    fetch(`http://localhost:9000/adoptions/user-status?petId=${petId}&email=${encodeURIComponent(session.user.email)}`)
+      .then((res) => (res.ok ? res.json() : { status: null }))
+      .then((data) => {
+        if (data && data.status) {
+          setDbRequestStatus(data.status);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, [petId, session?.user?.email]);
+
   const handleAdoptSubmit = async (e) => {
     e.preventDefault();
     if (!session) {
       toast.error("Please login first!");
       return;
     }
-    if (petStatus === "adopted" || petStatus === "approved") {
+    if (petStatus === "adopted" || petStatus === "approved" || dbRequestStatus === "approved") {
       toast.error("This pet has already been adopted!");
       return;
     }
@@ -83,74 +98,103 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
     }
   };
 
-  const isApproved = petStatus === "approved" || petStatus === "adopted";
-  const isPendingStatus = petStatus === "pending";
+  const currentStatus = dbRequestStatus?.toLowerCase();
+  const isApproved = petStatus === "approved" || petStatus === "adopted" || currentStatus === "approved";
+  const isPendingStatus = currentStatus === "pending";
+  const isRejectedStatus = currentStatus === "rejected";
+  
+  const isFormDisabled = isApproved || isPendingStatus || isRejectedStatus || isOwner;
 
   if (!mounted) {
     return (
       <div className="w-full h-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-pink-100 dark:border-pink-950/20 flex flex-col justify-center items-center min-h-[400px]">
-        <p className="text-sm text-slate-400 animate-pulse">Loading adoption form...</p>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-10 h-10 border-4 border-pink-200 border-t-pink-500 rounded-full mb-2"
+        />
+        <p className="text-sm text-slate-400">Loading adoption form...</p>
       </div>
     );
   }
 
+  const getRequesterButtonText = () => {
+    if (isApproved) return "Approved";
+    if (isPendingStatus) return "Request Pending";
+    if (isRejectedStatus) return "Request Rejected";
+    return "Submit Request";
+  };
+
   return (
-    <div className="w-full h-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-pink-100 dark:border-pink-950/20 flex flex-col justify-between">
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 100, damping: 15 }}
+      className="w-full h-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-pink-100 dark:border-pink-950/20 flex flex-col justify-between"
+    >
       <form onSubmit={handleAdoptSubmit} className="flex flex-col h-full justify-between space-y-5">
-       <div className="space-y-5">
-  <div className="text-center mb-6">
-    <h2 className="text-2xl font-black text-slate-800 dark:text-zinc-100">Adopt {petName || "Pet"}</h2>
-  </div>
+        <div className="space-y-5">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-black text-slate-800 dark:text-zinc-100 flex items-center justify-center gap-2">
+              <FaPaw className="text-pink-500 text-xl" /> Adopt {petName || "Pet"}
+            </h2>
+          </div>
 
-  <div>
-    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Pet Name</label>
-    <input type="text" defaultValue={petName || ""} readOnly className="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 font-semibold px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 cursor-not-allowed outline-none" />
-  </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Pet Name</label>
+            <input type="text" defaultValue={petName || ""} readOnly className="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-semibold px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 cursor-not-allowed outline-none text-sm" />
+          </div>
 
-  <div>
-    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Name</label>
-    <input type="text" defaultValue={session?.user?.name || ""} readOnly className="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 font-semibold px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 cursor-not-allowed outline-none" />
-  </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Name</label>
+            <input type="text" defaultValue={session?.user?.name || ""} readOnly className="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-semibold px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 cursor-not-allowed outline-none text-sm" />
+          </div>
 
-  <div>
-    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Email</label>
-    <input type="email" defaultValue={session?.user?.email || ""} readOnly className="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 font-semibold px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 cursor-not-allowed outline-none" />
-  </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Your Email</label>
+            <input type="email" defaultValue={session?.user?.email || ""} readOnly className="w-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-semibold px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 cursor-not-allowed outline-none text-sm" />
+          </div>
 
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Pickup Date</label>
+            <input type="date" name="pickupDate" required disabled={isFormDisabled} className="w-full bg-transparent disabled:bg-slate-50 dark:disabled:bg-zinc-800 dark:text-zinc-100 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 outline-none focus:border-pink-500 text-sm" />
+          </div>
 
-  <div>
-    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Pickup Date</label>
-    <input type="date" name="pickupDate" required disabled={isApproved || isPendingStatus || isOwner} className="w-full bg-transparent disabled:bg-slate-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-pink-500" />
-  </div>
-
-
-  <div>
-    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Message</label>
-    <textarea name="message" required disabled={isApproved || isPendingStatus || isOwner} placeholder="Write a short message to the owner..." className="w-full bg-transparent disabled:bg-slate-50 dark:bg-zinc-800 px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-pink-500 min-h-[100px]"></textarea>
-  </div>
-</div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Message</label>
+            <textarea name="message" required disabled={isFormDisabled} placeholder="Write a short message to the owner..." className="w-full bg-transparent disabled:bg-slate-50 dark:disabled:bg-zinc-800 dark:text-zinc-100 text-slate-800 px-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 outline-none focus:border-pink-500 min-h-[100px] text-sm"></textarea>
+          </div>
+        </div>
 
         <div className="mt-6">
           {isOwner ? (
-            <button
+            <motion.button
+              whileHover={!(isSubmitting || isApproved || !isPendingStatus) ? { opacity: 0.95 } : {}}
+              whileTap={!(isSubmitting || isApproved || !isPendingStatus) ? { scale: 0.99 } : {}}
               type="button"
               onClick={handleApproveStatus}
               disabled={isSubmitting || isApproved || !isPendingStatus}
-              className="w-full font-bold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-white bg-gradient-to-r from-green-500 to-emerald-600 disabled:bg-zinc-400"
+              className="w-full font-bold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-white bg-gradient-to-r from-green-500 to-emerald-600 disabled:from-zinc-300 disabled:to-zinc-300 dark:disabled:from-zinc-800 dark:disabled:to-zinc-800 disabled:text-zinc-500 cursor-pointer disabled:cursor-not-allowed text-sm"
             >
               {isApproved ? "Approved" : isPendingStatus ? (isSubmitting ? "Approving..." : <><FaCheck /> Approve Request</>) : "Pending"}
-            </button>
+            </motion.button>
           ) : (
-            <button
-              disabled={isSubmitting || isApproved || isPendingStatus}
+            <motion.button
+              whileHover={!(isSubmitting || isApproved || isPendingStatus || isRejectedStatus) ? { opacity: 0.95 } : {}}
+              whileTap={!(isSubmitting || isApproved || isPendingStatus || isRejectedStatus) ? { scale: 0.99 } : {}}
+              disabled={isSubmitting || isApproved || isPendingStatus || isRejectedStatus}
               type="submit"
-              className={`w-full py-3 rounded-xl font-bold transition-all ${(isApproved || isPendingStatus) ? "bg-zinc-400 cursor-not-allowed" : "bg-pink-500 hover:bg-pink-600 text-white"}`}
+              className={`w-full py-3.5 rounded-xl font-bold transition-all text-sm cursor-pointer disabled:cursor-not-allowed ${
+                (isApproved || isPendingStatus || isRejectedStatus) 
+                  ? "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400" 
+                  : "bg-pink-500 text-white shadow-md shadow-pink-200 dark:shadow-none"
+              }`}
             >
-              {isPendingStatus ? "Request Pending" : "Submit Request"}
-            </button>
+              {getRequesterButtonText()}
+            </motion.button>
           )}
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }

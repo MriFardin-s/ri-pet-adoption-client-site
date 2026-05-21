@@ -6,17 +6,20 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { HiOutlineClipboardList, HiOutlinePlusCircle } from "react-icons/hi";
 import { MdOutlinePets } from "react-icons/md";
+import { authClient } from "@/lib/auth-client";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  const userRole = "owner"; 
+  const { data: session, isPending } = authClient.useSession();
+
+  const userRole = session?.user ? "owner" : "guest";
 
   const menuItems = [
     { 
       key: "/dashboard/my-requests", 
       label: "My Requests", 
       icon: <HiOutlineClipboardList className="text-xl" />, 
-      show: true 
+      show: !!session?.user
     },
     { 
       key: "/dashboard/add-pet", 
@@ -31,6 +34,28 @@ export default function DashboardLayout({ children }) {
       show: userRole === "owner" 
     }
   ];
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full"
+          />
+          <motion.p 
+            initial={{ opacity: 0.4 }}
+            animate={{ opacity: 1 }}
+            transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.8 }}
+            className="text-sm font-medium text-slate-400"
+          >
+            Loading dashboard...
+          </motion.p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-base-100 text-base-content transition-colors duration-300">

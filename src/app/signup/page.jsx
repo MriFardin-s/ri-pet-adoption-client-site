@@ -7,6 +7,7 @@ import { FaEnvelope, FaLock, FaUser, FaPaw, FaImage } from "react-icons/fa";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
+import { motion } from "framer-motion";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -65,12 +66,15 @@ export default function SignupPage() {
         }
     };
 
-    // 🌸 রিটার্ন ব্লকটি এখন সাকসেসফুলি মূল ফাংশনের ভেতরে আছে
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-colors duration-300">
-            <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-pink-100 dark:border-pink-950/20">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-xl border border-pink-100 dark:border-pink-950/20"
+            >
 
-                {/* Logo & Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-pink-100 dark:bg-pink-950/50 text-pink-500 mb-3">
                         <FaPaw className="text-2xl" />
@@ -79,9 +83,7 @@ export default function SignupPage() {
                     <p className="text-sm text-slate-400 mt-1">Join us and start adopting lovely pets</p>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleSignup} className="space-y-4">
-                    {/* Full Name Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Full Name</label>
                         <div className="relative">
@@ -96,7 +98,6 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-                    {/* Email Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Email Address</label>
                         <div className="relative">
@@ -111,7 +112,6 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-                    {/* Image URL Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Image Url</label>
                         <div className="relative">
@@ -126,7 +126,6 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-                    {/* Password Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Password</label>
                         <div className="relative">
@@ -141,7 +140,6 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-                    {/* Confirm Password Input */}
                     <div>
                         <label className="block font-bold text-xs text-slate-500 dark:text-zinc-400 uppercase tracking-wider pb-1.5">Confirm Password</label>
                         <div className="relative">
@@ -156,7 +154,6 @@ export default function SignupPage() {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
                     <button
                         type="submit"
                         className="w-full mt-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3.5 rounded-xl border-none shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
@@ -165,14 +162,12 @@ export default function SignupPage() {
                     </button>
                 </form>
 
-                {/* Divider */}
                 <div className="relative flex py-5 items-center">
                     <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
                     <span className="flex-shrink mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">Or sign up with</span>
                     <div className="flex-grow border-t border-slate-200 dark:border-zinc-800"></div>
                 </div>
 
-                {/* Google Signup Button */}
                 <button
                     onClick={handleGoogleSignup}
                     type="button"
@@ -182,7 +177,6 @@ export default function SignupPage() {
                     <span>Continue with Google</span>
                 </button>
 
-                {/* Footer Link */}
                 <p className="text-center text-sm text-slate-500 dark:text-zinc-400 mt-8">
                     Already have an account?{" "}
                     <Link href="/login" className="font-bold text-pink-500 hover:underline">
@@ -190,7 +184,7 @@ export default function SignupPage() {
                     </Link>
                 </p>
 
-            </div>
+            </motion.div>
         </div>
     );
 }

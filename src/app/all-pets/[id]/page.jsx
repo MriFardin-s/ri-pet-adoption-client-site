@@ -25,7 +25,8 @@ export default async function PetDetailsPage({ params }) {
     console.error("Error fetching pet details:", error);
   }
 
-  const isOwner = session?.user?.email && pet?.ownerEmail && session.user.email === pet.ownerEmail;
+  const petOwnerEmail = pet?.addedBy?.email || pet?.addedBy || pet?.userEmail || pet?.ownerEmail;
+  const isOwner = session?.user?.email && petOwnerEmail && session.user.email === petOwnerEmail;
 
   if (!pet) {
     return (
@@ -47,14 +48,16 @@ export default async function PetDetailsPage({ params }) {
           <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-pink-100 dark:border-pink-950/30 flex-1 flex flex-col">
             <div className="relative h-[400px] w-full bg-slate-200 dark:bg-zinc-800 rounded-3xl overflow-hidden">
               <Image
-                fill
+                loading="eager"
                 src={
                   pet.imageUrl ||
                   pet.image ||
                   "https://placehold.co/1200x600?text=Pet+Image"
                 }
+                height={500}
+                width={500}
                 alt={pet.petName || pet.name || "Pet"}
-                className="object-cover object-center w-full h-full"
+                className="w-full h-100   "
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <span className="absolute top-4 right-4 bg-pink-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-md z-10">
@@ -122,10 +125,10 @@ export default async function PetDetailsPage({ params }) {
         <div className="lg:col-span-1 flex flex-col h-full">
           <AdoptForm
             key={pet.status} 
-            petName={pet?.name || pet?.petName || ""}
+            petName={pet?.petName || pet?.name || ""}
             petId={pet?._id || id}
             petStatus={pet?.status || "available"}
-            ownerEmail={pet?.ownerEmail}
+            ownerEmail={petOwnerEmail}
             isOwner={isOwner}
           />
         </div>
