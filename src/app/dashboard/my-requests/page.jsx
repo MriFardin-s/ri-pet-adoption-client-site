@@ -15,20 +15,28 @@ export default function MyRequestsPage() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
-
   const fetchMyRequests = async () => {
     try {
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-      const res = await fetch(
-        `http://localhost:9000/adoptions/my-requests?email=${session.user.email}`, {
-          method: "GET",
-          headers: {
-            ...(token && { "Authorization": `Bearer ${token}` })
-          }
+      console.log("Token value:", token);
+
+      if (!token) {
+        console.error("Token is missing");
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/my-requests`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         }
-      );
+      });
+
+      console.log("Response status:", res.status);
+
       if (!res.ok) throw new Error("Failed to fetch requests");
       const data = await res.json();
       setRequests(data);
@@ -66,7 +74,7 @@ export default function MyRequestsPage() {
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-      const res = await fetch(`http://localhost:9000/adoptions/${selectedRequest._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/${selectedRequest._id}`, {
         method: "DELETE",
         headers: {
           ...(token && { "Authorization": `Bearer ${token}` })

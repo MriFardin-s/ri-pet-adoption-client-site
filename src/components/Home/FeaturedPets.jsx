@@ -4,7 +4,7 @@ import FeaturedPetsClient from "../FeaturedPetsClient";
 
 
 async function getFeaturedPets() {
-  const res = await fetch("http://localhost:9000/pets", { cache: "no-store" });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/pets`, { cache: "no-store" });
   if (!res.ok) return [];
   return res.json();
 }

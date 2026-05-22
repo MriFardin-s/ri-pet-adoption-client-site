@@ -9,7 +9,7 @@ export default function RequestsModal({ isOpen, onClose, petId, onRefresh, reque
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-      const res = await fetch(`http://localhost:9000/adoptions/status/${requestId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/status/${requestId}`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",

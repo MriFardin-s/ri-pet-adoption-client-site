@@ -23,7 +23,7 @@ export default async function PetDetailsPage({ params }) {
   let pet = null;
 
   try {
-    const res = await fetch(`http://localhost:9000/pets/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/pets/${id}`, {
       headers: {
         authorization: `Bearer ${token}`
       },

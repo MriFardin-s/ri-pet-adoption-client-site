@@ -28,7 +28,7 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess }
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-            const res = await fetch(`http://localhost:9000/pets/${pet._id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/pets/${pet._id}`, {
                 method: "PATCH",
                 headers: { 
                     "Content-Type": "application/json",

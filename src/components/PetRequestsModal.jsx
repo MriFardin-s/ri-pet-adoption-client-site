@@ -21,7 +21,7 @@ export default function PetRequestsModal({ isOpen, onClose, pet, onStatusUpdated
                 const tokenResponse = await authClient.token();
                 const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-                const res = await fetch(`http://localhost:9000/adoptions/pet-requests/${pet._id}`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/pet-requests/${pet._id}`, {
                     method: "GET",
                     headers: {
                         ...(token && { "Authorization": `Bearer ${token}` })
@@ -48,7 +48,7 @@ export default function PetRequestsModal({ isOpen, onClose, pet, onStatusUpdated
             const tokenResponse = await authClient.token();
             const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-            const res = await fetch(`http://localhost:9000/adoptions/status/${requestId}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/status/${requestId}`, {
                 method: "PATCH",
                 headers: { 
                     "Content-Type": "application/json",

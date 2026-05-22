@@ -26,7 +26,7 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
       const token = tokenResponse?.data?.token || tokenResponse?.token;
 
       const email = encodeURIComponent(session.user.email);
-      const url = `http://localhost:9000/adoptions/user-status?petId=${petId}&email=${email}`;
+      const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/user-status?petId=${petId}&email=${email}`;
 
       const res = await fetch(url, {
         method: "GET",
@@ -79,7 +79,7 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-      const res = await fetch("http://localhost:9000/adoptions", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -112,7 +112,7 @@ export default function AdoptForm({ petName, petId, petStatus, ownerEmail, isOwn
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-      const res = await fetch(`http://localhost:9000/adoptions/approve/${petId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/approve/${petId}`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",

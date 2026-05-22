@@ -27,7 +27,7 @@ function useDashboardStats(email) {
         const token = tokenResponse?.data?.token || tokenResponse?.token;
 
         const res = await fetch(
-          `http://localhost:9000/dashboard-stats?email=${email}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/dashboard-stats?email=${email}`,
           {
             method: "GET",
             headers: {

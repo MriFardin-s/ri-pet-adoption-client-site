@@ -17,7 +17,7 @@ export default function AllPetsPage() {
         if (search) params.append("search", search);
         if (species.length > 0) params.append("species", species.join(","));
 
-        fetch(`http://localhost:9000/pets?${params.toString()}`)
+        fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/pets?${params.toString()}`)
             .then((res) => res.json())
             .then((data) => {
                 setPets(data);
