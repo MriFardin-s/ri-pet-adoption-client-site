@@ -103,7 +103,7 @@ export default function SignupPage() {
                         <div className="relative">
                             <input
                                 type="email"
-                                placeholder="fardin@example.com"
+                                placeholder="abc@example.com"
                                 name="email"
                                 required
                                 className="w-full bg-transparent dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-medium pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-zinc-700 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all placeholder:text-slate-400/60"

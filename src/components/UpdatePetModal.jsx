@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { toast } from "react-hot-toast";
-import { BiEnvelope, BiTrash } from "react-icons/bi";
+import { BiEnvelope } from "react-icons/bi";
 import { authClient } from "@/lib/auth-client";
-import PetDeleteAlert from "./PetDeleteAlert";
 
-export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, onDeleteSuccess }) {
+export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess }) {
     const { data: session } = authClient.useSession();
     const currentUserEmail = session?.user?.email;
-
-    const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     if (!isOpen || !pet) return null;
 
@@ -61,35 +57,6 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
         }
     };
 
-    const handleConfirmDelete = async () => {
-        setIsDeleteAlertOpen(false); 
-        setIsDeleting(true);
-        
-        try {
-            const tokenResponse = await authClient.token();
-            const token = tokenResponse?.data?.token || tokenResponse?.token;
-
-            const res = await fetch(`http://localhost:9000/pets/${pet._id}`, {
-                method: "DELETE",
-                headers: {
-                    ...(token && { "Authorization": `Bearer ${token}` })
-                }
-            });
-
-            if (!res.ok) throw new Error();
-
-            toast.success("Pet deleted successfully");
-            if (onDeleteSuccess) {
-                onDeleteSuccess(pet._id);
-            }
-            onClose(); 
-        } catch (error) {
-            toast.error("Failed to delete pet");
-        } finally {
-            setIsDeleting(false);
-        }
-    };
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
@@ -108,7 +75,7 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                 <div className="px-6 py-4 overflow-y-auto flex-1">
                     {!isOwner && (
                         <div className="mb-4 p-3 bg-amber-50 text-amber-700 text-xs font-medium rounded-xl border border-amber-100">
-                            Warning: Only the pet owner can update or delete this listing.
+                            Warning: Only the pet owner can update this listing.
                         </div>
                     )}
 
@@ -117,6 +84,7 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                             <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Pet Name <span className="text-rose-500">*</span></label>
                             <input disabled={!isOwner} type="text" name="petName" required defaultValue={pet?.petName || ""} className="w-full px-4 py-2.5 text-sm border border-pink-100 dark:border-zinc-700 rounded-xl focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 disabled:opacity-60" />
                         </div>
+                        
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col w-full">
                                 <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Species *</label>
@@ -133,6 +101,7 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                                 <input disabled={!isOwner} type="text" name="breed" required defaultValue={pet?.breed || ""} className="w-full px-4 py-2.5 text-sm border border-pink-100 dark:border-zinc-700 rounded-xl focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 disabled:opacity-60" />
                             </div>
                         </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col w-full">
                                 <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Age *</label>
@@ -146,6 +115,7 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                                 </select>
                             </div>
                         </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col w-full">
                                 <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Health Status *</label>
@@ -164,6 +134,7 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                                 </select>
                             </div>
                         </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col w-full">
                                 <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Location *</label>
@@ -174,10 +145,12 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                                 <input disabled={!isOwner} type="number" name="adoptionFee" required defaultValue={pet?.adoptionFee || 0} className="w-full px-4 py-2.5 text-sm border border-pink-100 dark:border-zinc-700 rounded-xl focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 disabled:opacity-60" />
                             </div>
                         </div>
+
                         <div className="flex flex-col w-full">
                             <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Image URL *</label>
                             <input disabled={!isOwner} type="url" name="imageUrl" required defaultValue={pet?.imageUrl || ""} className="w-full px-4 py-2.5 text-sm border border-pink-100 dark:border-zinc-700 rounded-xl focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 disabled:opacity-60" />
                         </div>
+
                         <div className="flex flex-col w-full">
                             <label className="mb-1.5 font-semibold text-xs text-slate-700 dark:text-zinc-200">Description *</label>
                             <textarea disabled={!isOwner} name="description" required defaultValue={pet?.description || ""} className="w-full px-4 py-2 text-sm border border-pink-100 dark:border-zinc-700 rounded-xl min-h-[80px] focus:border-pink-500 focus:outline-none bg-transparent text-slate-800 dark:text-zinc-100 resize-y disabled:opacity-60"></textarea>
@@ -185,32 +158,13 @@ export default function UpdatePetModal({ isOpen, onClose, pet, onUpdateSuccess, 
                     </form>
                 </div>
                 
-                <div className="px-6 pb-6 pt-4 flex items-center border-t border-slate-50 dark:border-zinc-800">
-                    {isOwner && (
-                        <button 
-                            type="button" 
-                            disabled={isDeleting}
-                            onClick={() => setIsDeleteAlertOpen(true)} 
-                            className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <BiTrash className="size-4" />
-                            {isDeleting ? "Deleting..." : "Delete"}
-                        </button>
-                    )}
-
-                    <div className="flex gap-3 ml-auto">
+                <div className="px-6 pb-6 pt-4 flex items-center border-t border-slate-50 dark:border-zinc-800 justify-end">
+                    <div className="flex gap-3">
                         <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer">Cancel</button>
                         <button type="submit" form="update-pet-form" disabled={!isOwner} className="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-sm shadow-md rounded-xl px-6 py-2.5 active:scale-95 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Save Changes</button>
                     </div>
                 </div>
             </div>
-
-            <PetDeleteAlert
-                isOpen={isDeleteAlertOpen}
-                onClose={() => setIsDeleteAlertOpen(false)}
-                onConfirm={handleConfirmDelete}
-                petName={pet?.petName}
-            />
         </div>
     );
 }

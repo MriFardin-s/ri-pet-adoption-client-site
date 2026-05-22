@@ -1,11 +1,13 @@
-import React from "react";
+
 import Image from "next/image";
 import { FaPaw, FaUser, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import AdoptForm from "@/components/AdoptForm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import UpdatePetModalWrapper from "@/components/UpdatePetModalWrapper";
 
 export default async function PetDetailsPage({ params }) {
+
   const { id } = await params;
   const {token} = await auth.api.getToken({
     headers: await headers()
@@ -130,6 +132,7 @@ export default async function PetDetailsPage({ params }) {
               </div>
             </div>
           </div>
+        {isOwner && <UpdatePetModalWrapper pet={pet} />}
         </div>
 
         <div className="lg:col-span-1 flex flex-col h-full">

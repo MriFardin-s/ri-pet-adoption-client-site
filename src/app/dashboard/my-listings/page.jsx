@@ -10,71 +10,57 @@ export default function MyListings() {
     const [pets, setPets] = useState([]);
     const [selectedPet, setSelectedPet] = useState(null);
     const [requestPet, setRequestPet] = useState(null);
-    const { data: session, isPending } = authClient.useSession();
+    const { data: session } = authClient.useSession();
     const currentUserEmail = session?.user?.email;
 
     useEffect(() => {
         if (!currentUserEmail) return;
 
-       const fetchMyListings = async () => {
-    try {
-        const tokenResponse = await authClient.token();
-        
+        const fetchMyListings = async () => {
+            try {
+                const tokenResponse = await authClient.token();
+                const token = tokenResponse?.data?.token || tokenResponse?.token;
 
-        const token = tokenResponse?.data?.token || tokenResponse?.token;
+                const res = await fetch(`http://localhost:9000/pets/my-listings?email=${encodeURIComponent(currentUserEmail)}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": token ? `Bearer ${token}` : "" 
+                    }
+                });
 
-        const res = await fetch(`http://localhost:9000/pets/my-listings?email=${currentUserEmail}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token ? `Bearer ${token}` : "" 
+                if (!res.ok) throw new Error("Failed to fetch");
+                const data = await res.json();
+                setPets(data);
+            } catch (err) {
+                console.error("Error fetching listings:", err);
             }
-        });
-
-        if (res.status === 401) throw new Error("Unauthorized - চেক করুন টোকেন ভ্যালিড কি না");
-        if (!res.ok) throw new Error("Failed to fetch");
-
-        const data = await res.json();
-        setPets(data);
-    } catch (err) {
-        console.error(err);
-    }
-};
+        };
 
         fetchMyListings();
     }, [currentUserEmail]);
 
-    const handleEditClick = (pet) => {
-        setSelectedPet(pet);
+    const handleDelete = async (pet) => {
+        try {
+            const tokenResponse = await authClient.token();
+            const token = tokenResponse?.data?.token || tokenResponse?.token;
+
+            const res = await fetch(`http://localhost:9000/pets/${pet._id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`, 
+                },
+            });
+
+            if (res.ok) {
+                setPets((prevPets) => prevPets.filter((p) => p._id !== pet._id));
+            } else {
+                alert("Failed to delete the pet.");
+            }
+        } catch (error) {
+            console.error("Error deleting pet:", error);
+        }
     };
-
-    const handleRequestClick = (pet) => {
-        setRequestPet(pet);
-    };
-
-    const handleUpdatePet = (updatedPet) => {
-        setPets((prevPets) =>
-            prevPets.map((p) => (p._id === updatedPet._id ? updatedPet : p))
-        );
-    };
-
-    const handleDeletePet = (deletedPetId) => {
-        setPets((prevPets) => prevPets.filter((p) => p._id !== deletedPetId));
-    };
-
-    const handleStatusUpdated = (petId, newStatus) => {
-        setPets((prevPets) =>
-            prevPets.map((p) => (p._id === petId ? { ...p, status: newStatus } : p))
-        );
-    };
-
-    if (isPending) {
-        return <div className="p-6 text-slate-400 text-sm">Loading...</div>;
-    }
-
-    if (!session) {
-        return <div className="p-6 text-rose-500 text-sm">Please log in to view your listings.</div>;
-    }
 
     return (
         <div className="p-6 w-full">
@@ -88,8 +74,9 @@ export default function MyListings() {
                         <PetCard 
                             key={pet._id} 
                             pet={pet} 
-                            onEditClick={handleEditClick} 
-                            onRequestClick={handleRequestClick}
+                            onEditClick={(p) => setSelectedPet(p)} 
+                            onRequestClick={(p) => setRequestPet(p)}
+                            onDeleteClick={handleDelete}
                         />
                     ))}
                 </div>
@@ -100,8 +87,9 @@ export default function MyListings() {
                     isOpen={true}
                     onClose={() => setSelectedPet(null)}
                     pet={selectedPet}
-                    onUpdateSuccess={handleUpdatePet}
-                    onDeleteSuccess={handleDeletePet}
+                    onUpdateSuccess={(updatedPet) => {
+                        setPets(prev => prev.map(p => p._id === updatedPet._id ? updatedPet : p));
+                    }}
                 />
             )}
 
@@ -110,7 +98,9 @@ export default function MyListings() {
                     isOpen={true}
                     onClose={() => setRequestPet(null)}
                     pet={requestPet}
-                    onStatusUpdated={handleStatusUpdated}
+                    onStatusUpdated={(petId, newStatus) => {
+                        setPets(prev => prev.map(p => p._id === petId ? { ...p, status: newStatus } : p));
+                    }}
                 />
             )}
         </div>

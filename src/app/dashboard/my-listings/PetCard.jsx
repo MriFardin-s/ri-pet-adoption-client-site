@@ -1,14 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import PetDeleteAlert from "@/components/PetDeleteAlert";
 
-export default function PetCard({ pet, onEditClick, onRequestClick }) {
+export default function PetCard({ pet, onEditClick, onRequestClick, onDeleteClick }) {
     const router = useRouter();
-
+    const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+    
     const currentStatus = (pet.status || "AVAILABLE").toUpperCase();
+
+    const handleConfirmDelete = () => {
+        onDeleteClick?.(pet);
+        setIsDeleteAlertOpen(false);
+    };
 
     return (
         <motion.div 
@@ -21,14 +28,15 @@ export default function PetCard({ pet, onEditClick, onRequestClick }) {
                     <Image
                         width={200}
                         height={200}
+                        priority={true}
                         src={pet.imageUrl || "https://via.placeholder.com/150"} 
                         alt={pet.petName} 
                         className="w-full h-48 object-cover" 
                     />
                     <span className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                        currentStatus === "PENDING" ? "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400" : 
-                        currentStatus === "APPROVED" || currentStatus === "ADOPTED" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" : 
-                        "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400"
+                        currentStatus === "PENDING" ? "bg-amber-50 text-amber-600" : 
+                        currentStatus === "ADOPTED" ? "bg-emerald-50 text-emerald-600" : 
+                        "bg-rose-50 text-rose-600"
                     }`}>
                         {currentStatus}
                     </span>
@@ -40,32 +48,43 @@ export default function PetCard({ pet, onEditClick, onRequestClick }) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="grid grid-cols-2 gap-2 mt-4">
                 <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={() => onRequestClick?.(pet)}
-                    className="border border-slate-200 dark:border-zinc-700 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition cursor-pointer"
+                    whileTap={{ scale: 0.95 }} 
+                    onClick={() => onRequestClick?.(pet)} 
+                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 transition"
                 >
                     Requests
                 </motion.button>
                 <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={() => onEditClick?.(pet)}
-                    className="border border-slate-200 dark:border-zinc-700 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition cursor-pointer"
+                    whileTap={{ scale: 0.95 }} 
+                    onClick={() => onEditClick?.(pet)} 
+                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 transition"
                 >
                     Edit
                 </motion.button>
                 <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    onClick={() => router.push(`/all-pets/${pet._id}`)}
-                    className="border border-slate-200 dark:border-zinc-700 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition cursor-pointer"
+                    whileTap={{ scale: 0.95 }} 
+                    onClick={() => router.push(`/all-pets/${pet._id}`)} 
+                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 transition"
                 >
                     View
                 </motion.button>
+                <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsDeleteAlertOpen(true)}
+                    className="bg-rose-50 text-rose-600 border border-rose-200 py-2 rounded-xl text-xs font-medium hover:bg-rose-100 transition"
+                >
+                    Delete
+                </motion.button>
             </div>
+
+            <PetDeleteAlert
+                isOpen={isDeleteAlertOpen}
+                onClose={() => setIsDeleteAlertOpen(false)}
+                onConfirm={handleConfirmDelete}
+                petName={pet?.petName}
+            />
         </motion.div>
     );
 }
