@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, Calendar, Clock, PawPrint } from "lucide-react";
 import DeleteAlert from "@/components/DeleteAlert";
 import { motion } from "framer-motion";
 
@@ -12,225 +12,162 @@ export default function MyRequestsPage() {
   const { data: session, isPending: sessionLoading } = authClient.useSession();
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const [isOpen, setIsOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const stats = useMemo(() => {
+    return {
+      total: requests.length,
+      pending: requests.filter((r) => r.status === "pending").length,
+      approved: requests.filter((r) => r.status === "approved").length,
+      rejected: requests.filter((r) => r.status === "rejected").length,
+    };
+  }, [requests]);
+
   const fetchMyRequests = async () => {
     try {
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
-
-      console.log("Token value:", token);
-
-      if (!token) {
-        console.error("Token is missing");
-        return;
-      }
+      if (!token) return;
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/my-requests`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+        headers: { authorization: `Bearer ${token}` }
       });
 
-      console.log("Response status:", res.status);
-
-      if (!res.ok) throw new Error("Failed to fetch requests");
+      if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setRequests(data);
     } catch (error) {
-      console.error(error);
-      toast.error("Could not load your adoption requests");
+      toast.error("Could not load requests");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (sessionLoading) return;
-    if (!session?.user?.email) {
-      setIsLoading(false);
-      return;
-    }
-    fetchMyRequests();
+    if (!sessionLoading && session?.user?.email) fetchMyRequests();
+    else if (!sessionLoading) setIsLoading(false);
   }, [session, sessionLoading]);
-
-  const openDeleteModal = (request) => {
-    setSelectedRequest(request);
-    setIsOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setSelectedRequest(null);
-    setIsOpen(false);
-  };
 
   const handleCancelRequest = async () => {
     if (!selectedRequest) return;
-
     try {
       const tokenResponse = await authClient.token();
       const token = tokenResponse?.data?.token || tokenResponse?.token;
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/${selectedRequest._id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/adoptions/${selectedRequest._id}`, {
         method: "DELETE",
-        headers: {
-          ...(token && { "Authorization": `Bearer ${token}` })
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (!res.ok) throw new Error("Failed to delete request");
-
-      toast.success("Adoption request cancelled");
-      setRequests(requests.filter((req) => req._id !== selectedRequest._id));
-      closeDeleteModal();
+      toast.success("Request cancelled");
+      setRequests(requests.filter((r) => r._id !== selectedRequest._id));
+      setIsOpen(false);
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to cancel request");
+      toast.error("Failed to cancel");
     }
   };
 
-  if (sessionLoading || isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-            className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full"
-          />
-          <motion.p
-            initial={{ opacity: 0.4 }}
-            animate={{ opacity: 1 }}
-            transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.8 }}
-            className="text-sm font-medium text-slate-400"
-          >
-            Loading your requests...
-          </motion.p>
-        </div>
+  if (sessionLoading || isLoading)  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950">
+      <div className="flex flex-col items-center gap-4">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full"
+        />
+        <motion.p
+          initial={{ opacity: 0.4 }}
+          animate={{ opacity: 1 }}
+          transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.8 }}
+          className="text-slate-500 dark:text-zinc-400 font-medium"
+        >
+          Loading...
+        </motion.p>
       </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-red-500 font-semibold">Please log in to view your requests.</p>
-      </div>
-    );
-  }
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
-  };
+    </div>
+  );
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="p-6 max-w-6xl mx-auto"
-    >
-      <motion.div variants={itemVariants} className="mb-6">
-        <h1 className="text-2xl font-black text-slate-800 dark:text-zinc-100">My Adoption Requests</h1>
-        <p className="text-sm text-slate-400 mt-1">Track and manage the status of your pet adoption requests</p>
-      </motion.div>
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-2xl font-black text-slate-800 dark:text-zinc-100 mb-6">My Adoption Requests</h1>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: "Total", value: stats.total },
+          { label: "Pending", value: stats.pending },
+          { label: "Approved", value: stats.approved },
+          { label: "Rejected", value: stats.rejected },
+        ].map((stat, idx) => (
+          <div key={idx} className="bg-base-300/40 dark:bg-pink-950/20 p-5 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm flex flex-col justify-center items-center">
+            <h3 className="text-sm font-bold text-pink-700 uppercase tracking-widest dark:text-pink-400">{stat.label}</h3>
+            <p className="text-3xl font-black mt-2 text-[#510424] dark:text-white transition-colors">{stat.value}</p>
+          </div>
+        ))}
+      </div>
 
       {requests.length === 0 ? (
         <motion.div
-          variants={itemVariants}
-          className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/50 rounded-2xl p-12 text-center shadow-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-base-300/40 dark:bg-pink-950/20 p-12 rounded-2xl border border-pink-200 dark:border-pink-900/30 transition-all shadow-sm flex flex-col items-center justify-center"
         >
-          <p className="text-slate-500 dark:text-zinc-400 font-medium">You have not requested to adopt any pets yet.</p>
+          <div className="w-16 h-16 bg-pink-50 dark:bg-pink-950/30 rounded-full flex items-center justify-center mb-4">
+            <Clock className="text-pink-500" size={32} />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-zinc-100">No requests yet</h3>
+          <p className="text-slate-500 dark:text-zinc-400 mt-2 max-w-sm">
+            It looks like you have not made any adoption requests yet. Explore our pets and find your new companion!
+          </p>
+          <Link
+            href="/all-pets"
+            className="mt-6 px-4 py-3 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-sm shadow-sm transition-all hover:opacity-95 active:scale-[0.98] flex items-center justify-center gap-1.5"
+          >
+            <PawPrint size={18} />
+            Browse All Pets
+          </Link>
         </motion.div>
       ) : (
-        <motion.div
-          variants={itemVariants}
-          className="overflow-x-auto bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/50 rounded-2xl shadow-sm"
-        >
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-zinc-950 text-slate-500 dark:text-zinc-400 font-bold text-xs uppercase tracking-wider border-b border-slate-100 dark:border-zinc-800">
-                <th className="px-6 py-4">Pet Name</th>
-                <th className="px-6 py-4">Request Date</th>
-                <th className="px-6 py-4">Pickup Date</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-zinc-800 text-sm text-slate-700 dark:text-zinc-300">
-              {requests.map((request) => (
-                <tr key={request._id} className="hover:bg-slate-50/50 dark:hover:bg-zinc-800/20 transition-colors">
-                  <td className="px-6 py-4 font-semibold text-slate-900 dark:text-zinc-100">
-                    {request.petName}
-                  </td>
-                  <td className="px-6 py-4">
-                    {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "N/A"}
-                  </td>
-                  <td className="px-6 py-4">
-                    {request.pickupDate || "N/A"}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border
-                        ${request.status === "approved" || request.status === "adopted"
-                          ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-950/50"
-                          : request.status === "rejected"
-                            ? "bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-950/50"
-                            : "bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-950/50"
-                        }`}
-                    >
-                      {request.status || "pending"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 flex items-center justify-center gap-3">
-                    <Link href={`/all-pets/${request.petId}`}>
-                      <motion.span
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-medium text-xs transition cursor-pointer"
-                      >
-                        <Eye size={14} /> View
-                      </motion.span>
-                    </Link>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      onClick={() => openDeleteModal(request)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-medium text-xs transition"
-                    >
-                      <Trash2 size={14} /> Cancel
-                    </motion.button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {requests.map((req) => (
+            <motion.div
+              key={req._id}
+              whileHover={{ y: -5 }}
+              className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-zinc-100">{req.petName}</h3>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${
+                  req.status === "approved" ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 border-emerald-100" :
+                  req.status === "rejected" ? "bg-rose-50 dark:bg-rose-950/30 text-rose-600 border-rose-100" : 
+                  "bg-amber-50 dark:bg-amber-950/30 text-amber-600 border-amber-100"
+                }`}>
+                  {req.status}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm text-slate-500 dark:text-zinc-400 mb-6">
+                <div className="flex items-center gap-2"><Clock size={16} /> Requested: {new Date(req.createdAt).toLocaleDateString()}</div>
+                <div className="flex items-center gap-2"><Calendar size={16} /> Pickup: {req.pickupDate || "N/A"}</div>
+              </div>
+
+              <div className={req.status === "rejected" ? "grid grid-cols-1 gap-2" : "grid grid-cols-2 gap-2"}>
+                <Link href={`/all-pets/${req.petId}`} className="flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700 p-2 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-zinc-800 transition">
+                  <Eye size={14} /> View
+                </Link>
+                {req.status !== "rejected" && (
+                  <button
+                    onClick={() => { setSelectedRequest(req); setIsOpen(true); }}
+                    className="flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-950/20 text-rose-600 border border-rose-100 dark:border-rose-900/50 p-2 rounded-xl text-xs hover:bg-rose-100 transition"
+                  >
+                    <Trash2 size={14} /> Cancel
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
       )}
 
-      {isOpen && (
-        <DeleteAlert
-          isOpen={isOpen}
-          onClose={closeDeleteModal}
-          onConfirm={handleCancelRequest}
-          petName={selectedRequest?.petName || ""}
-        />
-      )}
-    </motion.div>
+      <DeleteAlert isOpen={isOpen} onClose={() => setIsOpen(false)} onConfirm={handleCancelRequest} petName={selectedRequest?.petName} />
+    </div>
   );
 }

@@ -21,7 +21,8 @@ export const auth = betterAuth({
       enabled: true,
       trustedProviders: ["google"],
     },
-  },session:{
+  },
+  session:{
     cookieCache: true,
     strategy:"jwt",
     maxAge: 7* 24* 60* 60

@@ -31,7 +31,7 @@ export default function LoginPage() {
 
         if (data) {
             toast.success("Login successful! Redirecting...");
-            router.push("/"); 
+            router.push("/dashboard"); 
             router.refresh(); 
         }
         if (error) {
@@ -43,7 +43,7 @@ export default function LoginPage() {
         try {
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/", 
+                callbackURL: "/dashboard", 
             });
         } catch (err) {
             toast.error("Google login failed");

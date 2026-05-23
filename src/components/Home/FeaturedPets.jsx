@@ -5,7 +5,8 @@ import FeaturedPetsClient from "../FeaturedPetsClient";
 
 async function getFeaturedPets() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/pets`, { cache: "no-store" });
-  if (!res.ok) return [];
+  console.log(res);
+  // if (!res.ok) return [];
   return res.json();
 }
 

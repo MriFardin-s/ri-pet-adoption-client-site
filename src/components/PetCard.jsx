@@ -80,7 +80,7 @@ export default function PetCard({ pet }) {
         <div className="grid grid-cols-2 gap-3 mt-auto">
           <Link
             href={`/all-pets/${pet._id}`}
-            className="w-full py-3 block text-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-950 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-bold text-sm transition-colors active:scale-[0.98]"
+            className="w-full py-3 block text-center rounded-full  bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-sm shadow-sm transition-all hover:opacity-95 active:scale-[0.98] items-center justify-center gap-1.5"
           >
             View Details
           </Link>

@@ -3,8 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { HiOutlineHeart } from "react-icons/hi";
+import { HiOutlineHeart, HiOutlinePlusCircle } from "react-icons/hi";
 import Image from "next/image";
+import { Heart } from "lucide-react";
 
 export default function HeroBanner() {
     return (
@@ -25,12 +26,20 @@ export default function HeroBanner() {
                     <p className="text-base sm:text-lg text-neutral-600 dark:text-pink-100/70 font-medium max-w-xl mx-auto lg:mx-0">
                         Thousands of innocent pets are waiting for a second chance. Adopt today, save a precious life, and bring endless happiness into your home.
                     </p>
-                    <div className="pt-2">
+                    <div className="pt-2 flex flex-col gap-3">
                         <Link
-                            href="#featured-pets"
-                            className="px-8 py-3 text-white font-bold rounded-xl shadow-md transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 bg-gradient-to-r from-[#FF94B9] via-[#FFB7D2] to-[#FFE3EC] text-pink-950 dark:from-[#4A1525] dark:to-[#2A0813] dark:text-white"
+                            href="/all-pets"
+                            className="px-6 py-3 rounded-full border-2 border-pink-500 text-pink-600 font-bold text-sm transition-all hover:bg-pink-50 active:scale-[0.98] flex items-center justify-center gap-2"
                         >
+                             <Heart size={15} fill="currentColor" />
                             Adopt Now
+                        </Link>
+                        <Link
+                            href="/dashboard/add-pet"
+                            className="px-6 py-3 rounded-full border-2 border-pink-500 text-pink-600 font-bold text-sm transition-all hover:bg-pink-50 active:scale-[0.98] flex items-center justify-center gap-2"
+                        >
+                            <HiOutlinePlusCircle className="text-xl" />
+                            Add New Pet
                         </Link>
                     </div>
                 </motion.div>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { HiOutlinePencil, HiOutlineTrash, HiOutlineEye, HiOutlineClipboardDocumentList } from "react-icons/hi2";
 import PetDeleteAlert from "@/components/PetDeleteAlert";
 
 export default function PetCard({ pet, onEditClick, onRequestClick, onDeleteClick }) {
@@ -52,30 +53,30 @@ export default function PetCard({ pet, onEditClick, onRequestClick, onDeleteClic
                 <motion.button 
                     whileTap={{ scale: 0.95 }} 
                     onClick={() => onRequestClick?.(pet)} 
-                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 transition"
+                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-zinc-800 transition flex items-center justify-center gap-1.5"
                 >
-                    Requests
+                    <HiOutlineClipboardDocumentList className="text-sm" /> Requests
                 </motion.button>
                 <motion.button 
                     whileTap={{ scale: 0.95 }} 
                     onClick={() => onEditClick?.(pet)} 
-                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 transition"
+                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-zinc-800 transition flex items-center justify-center gap-1.5"
                 >
-                    Edit
+                    <HiOutlinePencil className="text-sm" /> Edit
                 </motion.button>
                 <motion.button 
                     whileTap={{ scale: 0.95 }} 
                     onClick={() => router.push(`/all-pets/${pet._id}`)} 
-                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 transition"
+                    className="border p-2 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-zinc-800 transition flex items-center justify-center gap-1.5"
                 >
-                    View
+                    <HiOutlineEye className="text-sm" /> View
                 </motion.button>
                 <motion.button 
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsDeleteAlertOpen(true)}
-                    className="bg-rose-50 text-rose-600 border border-rose-200 py-2 rounded-xl text-xs font-medium hover:bg-rose-100 transition"
+                    className="bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/30 py-2 rounded-xl text-xs font-medium hover:bg-rose-100 dark:hover:bg-rose-950/40 transition flex items-center justify-center gap-1.5"
                 >
-                    Delete
+                    <HiOutlineTrash className="text-sm" /> Delete
                 </motion.button>
             </div>
 

@@ -164,7 +164,7 @@ export default function DashboardPage() {
         className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2"
       >
         <StatCard
-          title="MY ADOPTION REQUESTS"
+          title="MY ADOPTION REQUESTS ACCEPT"
           value={stats.activeRequests}
         />
 
@@ -174,7 +174,7 @@ export default function DashboardPage() {
         />
 
         <StatCard
-          title="ADOPTION REQUESTS APPROVED"
+          title="I APPROVED ADOPTION REQUESTS "
           value={stats.adoptedPets}
         />
       </motion.div>
