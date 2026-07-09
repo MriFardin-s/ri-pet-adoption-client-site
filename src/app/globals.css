@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@import "@heroui/styles"; 
+@plugin "daisyui";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root, [data-theme="light"] {
+  --p: 330 100% 71%;       
+  --pc: 0 0% 100%;           
+  --s: 320 80% 92%;          
+  --sc: 330 40% 20%;        
+  --a: 270 70% 70%;            
+  --color-base-100: #fff9fb;         
+  --color-base-200: #fff0f5;          
+  --color-base-300: #ffe3ec;         
+  --color-base-content: #4a041a;        
+  --pink-gradient: linear-gradient(135deg, #FF94B9 0%, #FFB7D2 50%, #FFE3EC 100%);
+}
+
+.dark, [data-theme="dark"] {
+  --p: 330 85% 65%;
+  --pc: 0 0% 100%;
+  --s: 330 40% 25%;
+  --sc: 330 80% 95%;
+  --color-base-100: #1a050d;      
+  --color-base-200: #290c16;     
+  --color-base-300: #3d1422;     
+  --color-base-content: #ffe3ec;     
+  --pink-gradient: linear-gradient(135deg, #2D0B15 0%, #1A040A 100%);
+}
+
+body {
+  background: var(--pink-gradient);
+  background-attachment: fixed;
+  color: var(--color-base-content);
+}
+
+.bg-pink-gradient {
+  background: var(--pink-gradient);
+}
+
+.text-gradient-pink {
+  background: linear-gradient(to right, #9D174D 0%, #D01C6A 60%, #F43F5E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
