@@ -1,9 +1,6 @@
 # Pet Adoption Platform
 <img width="1890" height="939" alt="image" src="https://github.com/user-attachments/assets/9ecdbbc9-db9b-49f3-9a1e-a2dea085039c" />
 
-# Pet Adoption Platform
-
-![Project Screenshot](https://github.com/user-attachments/assets/9ecdbbc9-db9b-49f3-9a1e-a2dea085039c)
 
 The Pet Adoption Platform is a dedicated web application designed to connect homeless pets with loving families. Our mission is to simplify the adoption process and provide a safe, user-friendly environment for both pet seekers and pet owners to find their perfect companions.
 
